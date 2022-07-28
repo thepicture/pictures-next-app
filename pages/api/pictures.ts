@@ -4,6 +4,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 type Data = {
   pictures: string[]
 }
+const IMAGE_WIDTH_IN_PIXELS = 640;
+const IMAGE_HEIGHT_IN_PIXELS = 320;
 
 export default async function handler(
   _req: NextApiRequest,
@@ -12,9 +14,7 @@ export default async function handler(
   let pictures: string[] = [];
 
   for (let i = 0; i < 2; i++) {
-    const width = Math.floor(Math.random() * 200 + 50);
-    const height = Math.floor(Math.random() * 100 + 20);
-    const response = await fetch(`https://random.imagecdn.app/${width}/${height}`);
+    const response = await fetch(`https://random.imagecdn.app/${IMAGE_WIDTH_IN_PIXELS}/${IMAGE_HEIGHT_IN_PIXELS}`);
     pictures = [...pictures, response.url];
   }
 

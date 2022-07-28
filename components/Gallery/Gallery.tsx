@@ -21,8 +21,8 @@ const GrowingImage = styled.img`
 const Gallery: React.FC<GalleryProps> = ({ pictures }) => {
   return (
     <FlexContainer>
-      {pictures.map((picture) => {
-        return <GrowingImage key={picture} src={picture} alt="" />;
+      {pictures.map((picture, index) => {
+        return <GrowingImage key={index} src={picture} alt="" />;
       })}
     </FlexContainer>
   );
