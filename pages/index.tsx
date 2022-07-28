@@ -2,9 +2,9 @@ import { Card } from "@mui/material";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-const Background = styled.div`
+export const Background = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,7 +13,7 @@ const Background = styled.div`
   text-align: center;
 `;
 
-const StyledLink = styled.a`
+const sharedClickableStyle = css`
   color: white;
   background: #00d;
   border-radius: 0.5em;
@@ -25,6 +25,14 @@ const StyledLink = styled.a`
   &:hover {
     background: blue;
   }
+`;
+
+export const StyledLink = styled.a`
+  ${sharedClickableStyle}
+`;
+export const StyledButton = styled.button`
+  ${sharedClickableStyle}
+  border: none;
 `;
 
 const Home: NextPage = () => {
