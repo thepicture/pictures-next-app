@@ -1,4 +1,4 @@
-import { Card } from "@mui/material";
+import { Card, CircularProgress } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import React from "react";
@@ -54,7 +54,7 @@ const PicturesPage: NextPage = () => {
             <Uploader onUpload={handleUpload} />
           </Card>
           <Card elevation={16} sx={{ p: 4, overflow: "hidden visible" }}>
-            {isLoading ? <p>Loading...</p> : <Gallery pictures={pictures} />}
+            {isLoading ? <CircularProgress /> : <Gallery pictures={pictures} />}
           </Card>
         </ContainerGrid>
       </Background>
