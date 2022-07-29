@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
 
+const IMAGE_WIDTH_IN_PIXELS = 640;
+const IMAGE_HEIGHT_IN_PIXELS = 320;
+
 const usePictures = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [pictures, setPictures] = useState<string[]>([]);
     useEffect(() => {
         const loadPictures = async () => {
-            const response = await fetch('/api/pictures');
-            const json = await response.json() as { pictures: string[] };
-            setPictures(prev => [...prev, ...json.pictures]);
-            setIsLoading(false);
+            for (let i = 0; i < 8; i++) {
+                const response = await fetch(`https://random.imagecdn.app/${IMAGE_WIDTH_IN_PIXELS}/${IMAGE_HEIGHT_IN_PIXELS}`);
+                setPictures(prev => [...prev, response.url]);
+                setIsLoading(false);
+            }
         };
         loadPictures();
     }, []);
