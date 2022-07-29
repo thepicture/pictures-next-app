@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 export interface GalleryProps {
   pictures: string[];
+  onImageOpen: (url: string) => void;
 }
 
 const FlexContainer = styled.section`
@@ -18,11 +19,18 @@ const GrowingImage = styled.img`
   object-fit: cover;
 `;
 
-const Gallery: React.FC<GalleryProps> = ({ pictures }) => {
+const Gallery: React.FC<GalleryProps> = ({ pictures, onImageOpen }) => {
   return (
     <FlexContainer>
       {pictures.map((picture, index) => {
-        return <GrowingImage key={index} src={picture} alt="" />;
+        return (
+          <GrowingImage
+            key={index}
+            src={picture}
+            alt=""
+            onClick={() => onImageOpen(picture)}
+          />
+        );
       })}
     </FlexContainer>
   );
