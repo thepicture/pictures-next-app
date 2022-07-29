@@ -11,8 +11,12 @@ const usePictures = () => {
             for (let i = 0; i < 2; i++) {
                 const response = await fetch(`https://random.imagecdn.app/${IMAGE_WIDTH_IN_PIXELS}/${IMAGE_HEIGHT_IN_PIXELS}`);
                 setPictures(prev => [...prev, response.url]);
-                setIsLoading(false);
             }
+            setPictures(prev => [...prev, ...pictures].filter((value: string, index: number, array: string[]) => {
+                return array.indexOf(value) === index
+            })
+            );
+            setIsLoading(false);
         };
         loadPictures();
     }, []);
