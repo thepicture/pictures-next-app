@@ -8,7 +8,7 @@ const usePictures = () => {
     const [pictures, setPictures] = useState<string[]>([]);
     useEffect(() => {
         const loadPictures = async () => {
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 2; i++) {
                 const response = await fetch(`https://random.imagecdn.app/${IMAGE_WIDTH_IN_PIXELS}/${IMAGE_HEIGHT_IN_PIXELS}`);
                 setPictures(prev => [...prev, response.url]);
                 setIsLoading(false);

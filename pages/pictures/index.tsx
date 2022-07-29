@@ -44,19 +44,26 @@ const PicturesPage: NextPage = () => {
   };
 
   const convertFileToImage = async (file: File) => {
-    return new Promise<string>((resolve) => {
+    return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
+      reader.onload = () => {
+        if (pictures.some((picture) => picture === (reader.result as string))) {
+          alert("You have uploaded this picture already");
+          return resolve("rejected");
+        }
+        return resolve(reader.result as string);
+      };
     });
   };
 
   const handleUpload = async (files: File[]) => {
-    const newImages = await Promise.all(
+    let newImages = await Promise.all(
       files.map(async (file) => {
         return await convertFileToImage(file);
       })
     );
+    newImages = newImages.filter((image) => image !== "rejected");
     setPictures((prev) => [...prev, ...newImages]);
   };
   return (

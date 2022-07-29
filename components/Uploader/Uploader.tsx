@@ -8,9 +8,11 @@ export interface UploaderProps {
 const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
   let ref = createRef<HTMLInputElement>();
   useEffect(() => {});
-  const handleChange = () => {
-    if (ref!.current!.files!.length === 0) return;
-    onUpload(Array.from(ref!.current!.files!));
+  const handleInput = () => {
+    if (!ref.current || !ref.current.files) return;
+    if (ref.current.files.length === 0) return;
+    onUpload(Array.from(ref.current.files));
+    ref.current.value = "";
   };
   return (
     <>
@@ -18,7 +20,7 @@ const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
         multiple
         type="file"
         accept="image/*"
-        onChange={handleChange}
+        onInput={handleInput}
         ref={ref}
         hidden
         title="Upload picture to the gallery"
