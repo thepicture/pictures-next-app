@@ -1,4 +1,10 @@
-import { Button, Card, CircularProgress, Dialog } from "@mui/material";
+import {
+  Button,
+  Card,
+  CircularProgress,
+  Dialog,
+  Snackbar,
+} from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import React, { useState } from "react";
@@ -31,9 +37,12 @@ const FullScreenImageGrid = styled.section`
   }
 `;
 
+const AUTO_HIDE_DURATION_IN_MILLISECONDS = 5 * 1000;
+
 const PicturesPage: NextPage = () => {
   const { pictures, setPictures, isLoading } = usePictures();
   const [openedImage, setOpenedImage] = useState<string>();
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
 
   const handleImageOpen = (url: string) => {
     setOpenedImage(url);
@@ -43,13 +52,17 @@ const PicturesPage: NextPage = () => {
     setOpenedImage(undefined);
   };
 
+  const handleSnackbarClose = () => {
+    setIsSnackbarOpen(false);
+  };
+
   const convertFileToImage = async (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
         if (pictures.some((picture) => picture === (reader.result as string))) {
-          alert("You have uploaded this picture already");
+          setIsSnackbarOpen(true);
           return resolve("rejected");
         }
         return resolve(reader.result as string);
@@ -96,6 +109,11 @@ const PicturesPage: NextPage = () => {
           <Button onClick={handleImageClose}>Close</Button>
         </FullScreenImageGrid>
       </Dialog>
+      <Snackbar
+        open={isSnackbarOpen}
+        onClose={handleSnackbarClose}
+        message="You have uploaded this picture already"
+      ></Snackbar>
     </>
   );
 };
