@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Background } from "..";
@@ -37,7 +38,9 @@ const FullScreenImageGrid = styled.section`
   }
 `;
 
-const AUTO_HIDE_DURATION_IN_MILLISECONDS = 5 * 1000;
+const ImageWrapper = styled.figure`
+  position: relative;
+`;
 
 const PicturesPage: NextPage = () => {
   const { pictures, setPictures, isLoading } = usePictures();
@@ -57,7 +60,7 @@ const PicturesPage: NextPage = () => {
   };
 
   const convertFileToImage = async (file: File) => {
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<string>((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -105,7 +108,9 @@ const PicturesPage: NextPage = () => {
       </Background>
       <Dialog open={!!openedImage} fullScreen>
         <FullScreenImageGrid>
-          <img src={openedImage} alt="" />
+          <ImageWrapper>
+            <Image src={openedImage!} alt="" layout="fill" />
+          </ImageWrapper>
           <Button onClick={handleImageClose}>Close</Button>
         </FullScreenImageGrid>
       </Dialog>

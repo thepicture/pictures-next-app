@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import Image from "next/image";
 
 export interface GalleryProps {
   pictures: string[];
@@ -11,12 +12,24 @@ const FlexContainer = styled.section`
   flex-wrap: wrap;
 `;
 
-const GrowingImage = styled.img`
-  width: 25%;
+const GrowingImage = styled(Image)`
+  object-fit: cover;
+  cursor: pointer;
+`;
+
+const ImageWrapper = styled.figure`
   flex: 1;
+  flex-basis: 20%;
+  position: relative;
+  height: 16vh;
   margin: 0.2em;
   border-radius: 0.2em;
   object-fit: cover;
+  transition: all 100ms ease-in-out;
+
+  &:hover {
+    transform: scale(1.03);
+  }
 `;
 
 const Gallery: React.FC<GalleryProps> = ({ pictures, onImageOpen }) => {
@@ -24,12 +37,14 @@ const Gallery: React.FC<GalleryProps> = ({ pictures, onImageOpen }) => {
     <FlexContainer>
       {pictures.map((picture, index) => {
         return (
-          <GrowingImage
-            key={index}
-            src={picture}
-            alt=""
-            onClick={() => onImageOpen(picture)}
-          />
+          <ImageWrapper key={index}>
+            <GrowingImage
+              layout="fill"
+              src={picture}
+              alt=""
+              onClick={() => onImageOpen(picture)}
+            />
+          </ImageWrapper>
         );
       })}
     </FlexContainer>
