@@ -87,6 +87,7 @@ const PicturesPage: NextPage = () => {
   };
 
   const handleImageClose = () => {
+    setZoomRatio(1);
     setOpenedImage(undefined);
   };
 
