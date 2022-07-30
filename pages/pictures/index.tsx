@@ -138,8 +138,17 @@ const PicturesPage: NextPage = () => {
             <Uploader onUpload={handleUpload} />
           </Card>
           <Card elevation={16} sx={{ p: 4, overflow: "hidden visible" }}>
-            <Gallery pictures={pictures} onImageOpen={handleImageOpen} />
-            <CircularProgress ref={scrollRef} />
+            <Gallery
+              id="gallery"
+              pictures={pictures}
+              onImageOpen={handleImageOpen}
+            />
+            <CircularProgress
+              ref={scrollRef}
+              title="Loading more images at the bottom of the page"
+              aria-busy={inView}
+              aria-describedby="gallery"
+            />
           </Card>
         </ContainerGrid>
       </Background>

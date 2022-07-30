@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Image from "next/image";
 
 export interface GalleryProps {
+  id: string;
   pictures: string[];
   onImageOpen: (url: string) => void;
 }
@@ -32,9 +33,9 @@ const ImageWrapper = styled.figure`
   }
 `;
 
-const Gallery: React.FC<GalleryProps> = ({ pictures, onImageOpen }) => {
+const Gallery: React.FC<GalleryProps> = ({ id, pictures, onImageOpen }) => {
   return (
-    <FlexContainer>
+    <FlexContainer id={id}>
       {pictures.map((picture, index) => {
         return (
           <ImageWrapper key={index}>
