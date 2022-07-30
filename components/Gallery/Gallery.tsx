@@ -39,6 +39,7 @@ const Gallery: React.FC<GalleryProps> = ({ pictures, onImageOpen }) => {
         return (
           <ImageWrapper key={index}>
             <GrowingImage
+              priority
               layout="fill"
               src={picture}
               alt=""

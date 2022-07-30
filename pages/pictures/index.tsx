@@ -8,7 +8,8 @@ import {
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import styled from "styled-components";
 import { Background } from "..";
 import Gallery from "../../components/Gallery/Gallery";
@@ -41,11 +42,32 @@ const FullScreenImageGrid = styled.section`
 const ImageWrapper = styled.figure`
   position: relative;
 `;
+const IMAGE_WIDTH_IN_PIXELS = 640;
+const IMAGE_HEIGHT_IN_PIXELS = 320;
 
 const PicturesPage: NextPage = () => {
-  const { pictures, setPictures, isLoading } = usePictures();
+  const [pictures, setPictures] = useState<string[]>([]);
   const [openedImage, setOpenedImage] = useState<string>();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(true);
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    const loadMorePictures = async () => {
+      const response = await fetch(
+        `https://random.imagecdn.app/${IMAGE_WIDTH_IN_PIXELS}/${IMAGE_HEIGHT_IN_PIXELS}`
+      );
+      setPictures((prev) =>
+        [...prev, response.url].filter(
+          (value: string, index: number, array: string[]) => {
+            return array.indexOf(value) === index;
+          }
+        )
+      );
+      setIsLoadingMore(!isLoadingMore);
+    };
+    if (inView) loadMorePictures();
+  }, [inView, isLoadingMore]);
 
   const handleImageOpen = (url: string) => {
     setOpenedImage(url);
@@ -98,11 +120,8 @@ const PicturesPage: NextPage = () => {
             <Uploader onUpload={handleUpload} />
           </Card>
           <Card elevation={16} sx={{ p: 4, overflow: "hidden visible" }}>
-            {isLoading ? (
-              <CircularProgress />
-            ) : (
-              <Gallery pictures={pictures} onImageOpen={handleImageOpen} />
-            )}
+            <Gallery pictures={pictures} onImageOpen={handleImageOpen} />
+            <CircularProgress ref={ref} />
           </Card>
         </ContainerGrid>
       </Background>
