@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactText } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 
@@ -18,7 +18,7 @@ const GrowingImage = styled(Image)`
   cursor: pointer;
 `;
 
-const ImageWrapper = styled.figure`
+const ImageWrapperButton = styled.button`
   flex: 1;
   flex-basis: 20%;
   position: relative;
@@ -27,6 +27,7 @@ const ImageWrapper = styled.figure`
   border-radius: 0.2em;
   object-fit: cover;
   transition: all 100ms ease-in-out;
+  border: none;
 
   &:hover {
     transform: scale(1.03);
@@ -38,15 +39,17 @@ const Gallery: React.FC<GalleryProps> = ({ id, pictures, onImageOpen }) => {
     <FlexContainer id={id}>
       {pictures.map((picture, index) => {
         return (
-          <ImageWrapper key={index}>
-            <GrowingImage
-              priority
-              layout="fill"
-              src={picture}
-              alt=""
-              onClick={() => onImageOpen(picture)}
-            />
-          </ImageWrapper>
+          <ImageWrapperButton
+            key={index}
+            tabIndex={0}
+            onClick={() => onImageOpen(picture)}
+            onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
+              event.key === "Enter" && onImageOpen(picture)
+            }
+            aria-label="Picture in the picture list, interact to open the full screen of this picture"
+          >
+            <GrowingImage src={picture} alt="" priority layout="fill" />
+          </ImageWrapperButton>
         );
       })}
     </FlexContainer>

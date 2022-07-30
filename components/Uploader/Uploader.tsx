@@ -25,7 +25,10 @@ const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
         hidden
         title="Upload picture to the gallery"
       />
-      <StyledButton onClick={() => ref!.current!.click()}>
+      <StyledButton
+        onClick={() => ref!.current!.click()}
+        aria-label="Upload picture to the site to make it appear at the end of the picture list"
+      >
         Upload picture
       </StyledButton>
     </>

@@ -48,10 +48,15 @@ const Home: NextPage = () => {
       </Head>
 
       <Card elevation={16} component="main" sx={{ p: 4, m: 4 }}>
-        <h1>Pictures App</h1>
-        <p>Share pictures with others in the common gallery</p>
+        <h1 tabIndex={0}>Pictures App</h1>
+        <p tabIndex={0}>Share pictures with others in the common gallery</p>
         <Link href="/pictures" title="Navigate to pictures page">
-          <StyledLink>Start</StyledLink>
+          <StyledLink
+            tabIndex={0}
+            aria-label="Open picture list with the ability to upload one or more pictures"
+          >
+            Start
+          </StyledLink>
         </Link>
       </Card>
     </Background>

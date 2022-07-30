@@ -145,6 +145,7 @@ const PicturesPage: NextPage = () => {
             />
             <CircularProgress
               ref={scrollRef}
+              variant="indeterminate"
               title="Loading more images at the bottom of the page"
               aria-busy={inView}
               aria-describedby="gallery"
