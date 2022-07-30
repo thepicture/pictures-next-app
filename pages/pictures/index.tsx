@@ -8,8 +8,16 @@ import {
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, {
+  createRef,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useInView } from "react-intersection-observer";
+import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 import styled from "styled-components";
 import { Background } from "..";
 import Gallery from "../../components/Gallery/Gallery";
@@ -38,22 +46,16 @@ const FullScreenImageGrid = styled.section`
   }
 `;
 
-const ImageWrapper = styled.figure`
-  position: relative;
-`;
 const IMAGE_WIDTH_IN_PIXELS = 640;
 const IMAGE_HEIGHT_IN_PIXELS = 320;
 
-const SCROLL_DELTA_Y = 0.08;
-const MAX_ZOOM_RATIO = 2;
-const MIN_ZOOM_RATIO = 1;
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<string[]>([]);
   const [openedImage, setOpenedImage] = useState<string>();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(true);
   const { ref: scrollRef, inView } = useInView();
-  const [zoomRatio, setZoomRatio] = useState(1);
+  const imageRef = useRef<any>();
 
   useEffect(() => {
     const loadMorePictures = async () => {
@@ -76,18 +78,20 @@ const PicturesPage: NextPage = () => {
     setOpenedImage(url);
   };
 
-  const handleWheel = (event: React.WheelEvent<HTMLImageElement>) => {
-    if (event!.deltaY < 0) {
-      zoomRatio < MAX_ZOOM_RATIO &&
-        setZoomRatio((prev) => prev + SCROLL_DELTA_Y);
-    } else {
-      zoomRatio > MIN_ZOOM_RATIO &&
-        setZoomRatio((prev) => prev - SCROLL_DELTA_Y);
-    }
-  };
+  const onUpdate = useCallback(
+    ({ x, y, scale }: { x: number; y: number; scale: number }) => {
+      const { current: img } = imageRef;
+
+      if (img) {
+        const value = make3dTransformValue({ x, y, scale });
+
+        img.style.setProperty("transform", value);
+      }
+    },
+    []
+  );
 
   const handleImageClose = () => {
-    setZoomRatio(1);
     setOpenedImage(undefined);
   };
 
@@ -141,15 +145,9 @@ const PicturesPage: NextPage = () => {
       </Background>
       <Dialog open={!!openedImage} fullScreen>
         <FullScreenImageGrid>
-          <ImageWrapper>
-            <Image
-              src={openedImage!}
-              alt=""
-              style={{ transform: `scale(${zoomRatio}` }}
-              onWheel={handleWheel}
-              layout="fill"
-            />
-          </ImageWrapper>
+          <QuickPinchZoom onUpdate={onUpdate}>
+            <img src={openedImage!} alt="" ref={imageRef} />
+          </QuickPinchZoom>
           <Button onClick={handleImageClose}>Close</Button>
         </FullScreenImageGrid>
       </Dialog>
