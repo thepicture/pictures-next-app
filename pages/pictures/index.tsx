@@ -14,7 +14,6 @@ import styled from "styled-components";
 import { Background } from "..";
 import Gallery from "../../components/Gallery/Gallery";
 import Uploader from "../../components/Uploader/Uploader";
-import usePictures from "../../hooks/usePictures";
 
 const ContainerGrid = styled.main`
   display: grid;
@@ -45,12 +44,16 @@ const ImageWrapper = styled.figure`
 const IMAGE_WIDTH_IN_PIXELS = 640;
 const IMAGE_HEIGHT_IN_PIXELS = 320;
 
+const SCROLL_DELTA_Y = 0.08;
+const MAX_ZOOM_RATIO = 2;
+const MIN_ZOOM_RATIO = 1;
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<string[]>([]);
   const [openedImage, setOpenedImage] = useState<string>();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(true);
-  const { ref, inView } = useInView();
+  const { ref: scrollRef, inView } = useInView();
+  const [zoomRatio, setZoomRatio] = useState(1);
 
   useEffect(() => {
     const loadMorePictures = async () => {
@@ -71,6 +74,16 @@ const PicturesPage: NextPage = () => {
 
   const handleImageOpen = (url: string) => {
     setOpenedImage(url);
+  };
+
+  const handleWheel = (event: React.WheelEvent<HTMLImageElement>) => {
+    if (event!.deltaY < 0) {
+      zoomRatio < MAX_ZOOM_RATIO &&
+        setZoomRatio((prev) => prev + SCROLL_DELTA_Y);
+    } else {
+      zoomRatio > MIN_ZOOM_RATIO &&
+        setZoomRatio((prev) => prev - SCROLL_DELTA_Y);
+    }
   };
 
   const handleImageClose = () => {
@@ -121,14 +134,20 @@ const PicturesPage: NextPage = () => {
           </Card>
           <Card elevation={16} sx={{ p: 4, overflow: "hidden visible" }}>
             <Gallery pictures={pictures} onImageOpen={handleImageOpen} />
-            <CircularProgress ref={ref} />
+            <CircularProgress ref={scrollRef} />
           </Card>
         </ContainerGrid>
       </Background>
       <Dialog open={!!openedImage} fullScreen>
         <FullScreenImageGrid>
           <ImageWrapper>
-            <Image src={openedImage!} alt="" layout="fill" />
+            <Image
+              src={openedImage!}
+              alt=""
+              style={{ transform: `scale(${zoomRatio}` }}
+              onWheel={handleWheel}
+              layout="fill"
+            />
           </ImageWrapper>
           <Button onClick={handleImageClose}>Close</Button>
         </FullScreenImageGrid>
