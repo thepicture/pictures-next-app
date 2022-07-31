@@ -1,7 +1,8 @@
-import React, { ReactText } from "react";
+import React from "react";
 import styled from "styled-components";
 import Image from "next/image";
-import Picture from "../../interfaces/Picture";
+
+import Picture from "@interfaces/Picture";
 
 export interface GalleryProps {
   id: string;
@@ -35,7 +36,7 @@ const ImageWrapperButton = styled.button`
   }
 `;
 
-const Gallery: React.FC<GalleryProps> = ({
+export const Gallery: React.FC<GalleryProps> = ({
   id,
   pictures,
   onPictureOpen: onPictureOpen,
@@ -65,5 +66,3 @@ const Gallery: React.FC<GalleryProps> = ({
     </FlexContainer>
   );
 };
-
-export default Gallery;

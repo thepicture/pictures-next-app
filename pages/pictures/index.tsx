@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -6,17 +7,17 @@ import {
   Snackbar,
   Typography,
 } from "@mui/material";
+import styled from "styled-components";
 import { NextPage } from "next";
 import Head from "next/head";
-import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
-import styled from "styled-components";
 import byteSize from "byte-size";
-import { Background } from "..";
-import Gallery from "../../components/Gallery/Gallery";
-import Uploader from "../../components/Uploader/Uploader";
-import Picture from "../../interfaces/Picture";
+
+import { Background } from "@pages";
+import { Gallery } from "@components";
+import { Uploader } from "@components";
+import { Picture } from "@interfaces";
 
 const ContainerGrid = styled.main`
   display: grid;

@@ -1,11 +1,12 @@
 import React, { createRef, useEffect } from "react";
-import { StyledButton } from "../../pages";
+
+import { StyledButton } from "@pages";
 
 export interface UploaderProps {
   onUpload: (files: File[]) => void;
 }
 
-const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
+export const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
   let ref = createRef<HTMLInputElement>();
   useEffect(() => {});
   const handleInput = () => {
@@ -34,5 +35,3 @@ const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
     </>
   );
 };
-
-export default Uploader;
