@@ -7,21 +7,14 @@ import {
 } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
-import React, {
-  createRef,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 import styled from "styled-components";
 import { Background } from "..";
 import Gallery from "../../components/Gallery/Gallery";
 import Uploader from "../../components/Uploader/Uploader";
+import Picture from "../../interfaces/Picture";
 
 const ContainerGrid = styled.main`
   display: grid;
@@ -34,7 +27,7 @@ const ContainerGrid = styled.main`
   gap: 1em;
 `;
 
-const FullScreenImageGrid = styled.section`
+const FullScreenPictureGrid = styled.section`
   display: grid;
   height: 100%;
   grid-template-rows: 1fr auto;
@@ -46,12 +39,12 @@ const FullScreenImageGrid = styled.section`
   }
 `;
 
-const IMAGE_WIDTH_IN_PIXELS = 640;
-const IMAGE_HEIGHT_IN_PIXELS = 320;
+const PICTURE_WIDTH_IN_PIXELS = 640;
+const PICTURE_HEIGHT_IN_PIXELS = 320;
 
 const PicturesPage: NextPage = () => {
-  const [pictures, setPictures] = useState<string[]>([]);
-  const [openedImage, setOpenedImage] = useState<string>();
+  const [pictures, setPictures] = useState<Picture[]>([]);
+  const [openedPicture, setOpenedPicture] = useState<Picture>();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(true);
   const { ref: scrollRef, inView } = useInView();
@@ -60,12 +53,14 @@ const PicturesPage: NextPage = () => {
   useEffect(() => {
     const loadMorePictures = async () => {
       const response = await fetch(
-        `https://random.imagecdn.app/${IMAGE_WIDTH_IN_PIXELS}/${IMAGE_HEIGHT_IN_PIXELS}`
+        `https://random.imagecdn.app/${PICTURE_WIDTH_IN_PIXELS}/${PICTURE_HEIGHT_IN_PIXELS}`
       );
       setPictures((prev) =>
-        [...prev, response.url].filter(
-          (value: string, index: number, array: string[]) => {
-            return array.indexOf(value) === index;
+        [...prev, { name: response.url, size: -1, url: response.url }].filter(
+          (value: Picture, index: number, array: Picture[]) => {
+            return (
+              array.map((picture) => picture.url).indexOf(value.url) === index
+            );
           }
         )
       );
@@ -74,8 +69,8 @@ const PicturesPage: NextPage = () => {
     if (inView) loadMorePictures();
   }, [inView, isLoadingMore]);
 
-  const handleImageOpen = (url: string) => {
-    setOpenedImage(url);
+  const handlePictureOpen = (picture: Picture) => {
+    setOpenedPicture(picture);
   };
 
   const onUpdate = useCallback(
@@ -91,36 +86,42 @@ const PicturesPage: NextPage = () => {
     []
   );
 
-  const handleImageClose = () => {
-    setOpenedImage(undefined);
+  const handlePictureClose = () => {
+    setOpenedPicture(undefined);
   };
 
   const handleSnackbarClose = () => {
     setIsSnackbarOpen(false);
   };
 
-  const convertFileToImage = async (file: File) => {
-    return new Promise<string>((resolve) => {
+  const convertFileToPicture = async (file: File) => {
+    return new Promise<Picture>((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        if (pictures.some((picture) => picture === (reader.result as string))) {
+        if (
+          pictures.some((picture) => picture.url === (reader.result as string))
+        ) {
           setIsSnackbarOpen(true);
-          return resolve("rejected");
+          return resolve({ name: "", size: -1, url: "" });
         }
-        return resolve(reader.result as string);
+        return resolve({
+          name: file.name,
+          size: file.size,
+          url: reader.result as string,
+        });
       };
     });
   };
 
   const handleUpload = async (files: File[]) => {
-    let newImages = await Promise.all(
+    let newPictures = await Promise.all(
       files.map(async (file) => {
-        return await convertFileToImage(file);
+        return await convertFileToPicture(file);
       })
     );
-    newImages = newImages.filter((image) => image !== "rejected");
-    setPictures((prev) => [...prev, ...newImages]);
+    newPictures = newPictures.filter((picture) => !!picture.name);
+    setPictures((prev) => [...prev, ...newPictures]);
   };
   return (
     <>
@@ -141,25 +142,25 @@ const PicturesPage: NextPage = () => {
             <Gallery
               id="gallery"
               pictures={pictures}
-              onImageOpen={handleImageOpen}
+              onPictureOpen={handlePictureOpen}
             />
             <CircularProgress
               ref={scrollRef}
               variant="indeterminate"
-              title="Loading more images at the bottom of the page"
+              title="Loading more pictures at the bottom of the page"
               aria-busy={inView}
               aria-describedby="gallery"
             />
           </Card>
         </ContainerGrid>
       </Background>
-      <Dialog open={!!openedImage} fullScreen>
-        <FullScreenImageGrid>
+      <Dialog open={!!openedPicture} fullScreen>
+        <FullScreenPictureGrid>
           <QuickPinchZoom onUpdate={onUpdate}>
-            <img src={openedImage!} alt="" ref={imageRef} />
+            <img src={openedPicture?.url} alt="" ref={imageRef} />
           </QuickPinchZoom>
-          <Button onClick={handleImageClose}>Close</Button>
-        </FullScreenImageGrid>
+          <Button onClick={handlePictureClose}>Close</Button>
+        </FullScreenPictureGrid>
       </Dialog>
       <Snackbar
         open={isSnackbarOpen}

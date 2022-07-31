@@ -1,11 +1,12 @@
 import React, { ReactText } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+import Picture from "../../interfaces/Picture";
 
 export interface GalleryProps {
   id: string;
-  pictures: string[];
-  onImageOpen: (url: string) => void;
+  pictures: Picture[];
+  onPictureOpen: (picture: Picture) => void;
 }
 
 const FlexContainer = styled.section`
@@ -34,7 +35,11 @@ const ImageWrapperButton = styled.button`
   }
 `;
 
-const Gallery: React.FC<GalleryProps> = ({ id, pictures, onImageOpen }) => {
+const Gallery: React.FC<GalleryProps> = ({
+  id,
+  pictures,
+  onPictureOpen: onPictureOpen,
+}) => {
   return (
     <FlexContainer id={id}>
       {pictures.map((picture, index) => {
@@ -42,13 +47,18 @@ const Gallery: React.FC<GalleryProps> = ({ id, pictures, onImageOpen }) => {
           <ImageWrapperButton
             key={index}
             tabIndex={0}
-            onClick={() => onImageOpen(picture)}
+            onClick={() => onPictureOpen(picture)}
             onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
-              event.key === "Enter" && onImageOpen(picture)
+              event.key === "Enter" && onPictureOpen(picture)
             }
             aria-label="Picture in the picture list, interact to open the full screen of this picture"
           >
-            <GrowingImage src={picture} alt="" priority layout="fill" />
+            <GrowingImage
+              src={picture.url}
+              alt={picture.name}
+              priority
+              layout="fill"
+            />
           </ImageWrapperButton>
         );
       })}
