@@ -12,6 +12,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 import styled from "styled-components";
+import byteSize from "byte-size";
 import { Background } from "..";
 import Gallery from "../../components/Gallery/Gallery";
 import Uploader from "../../components/Uploader/Uploader";
@@ -31,7 +32,7 @@ const ContainerGrid = styled.main`
 const FullScreenPictureGrid = styled.section`
   display: grid;
   height: 100%;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto;
 
   & img {
     object-fit: contain;
@@ -170,6 +171,11 @@ const PicturesPage: NextPage = () => {
             {openedPicture?.size === -1
               ? openedPicture?.name
               : openedPicture?.name.split(".")[0]}
+          </Typography>
+          <Typography textAlign="center">
+            {openedPicture && openedPicture?.size === -1
+              ? "Size is unknown"
+              : openedPicture && byteSize(openedPicture.size).toString()}
           </Typography>
           <QuickPinchZoom onUpdate={onUpdate}>
             <img src={openedPicture?.url} alt="" ref={imageRef} />
