@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Dialog,
   Snackbar,
+  Typography,
 } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -30,7 +31,7 @@ const ContainerGrid = styled.main`
 const FullScreenPictureGrid = styled.section`
   display: grid;
   height: 100%;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto 1fr auto;
 
   & img {
     object-fit: contain;
@@ -156,6 +157,20 @@ const PicturesPage: NextPage = () => {
       </Background>
       <Dialog open={!!openedPicture} fullScreen>
         <FullScreenPictureGrid>
+          <Typography
+            textAlign="center"
+            component="h2"
+            variant="h6"
+            sx={{
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            }}
+          >
+            {openedPicture?.size === -1
+              ? openedPicture?.name
+              : openedPicture?.name.split(".")[0]}
+          </Typography>
           <QuickPinchZoom onUpdate={onUpdate}>
             <img src={openedPicture?.url} alt="" ref={imageRef} />
           </QuickPinchZoom>
