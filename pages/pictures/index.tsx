@@ -42,8 +42,7 @@ const FullScreenPictureGrid = styled.section`
   }
 `;
 
-const PICTURE_WIDTH_IN_PIXELS = 640;
-const PICTURE_HEIGHT_IN_PIXELS = 320;
+const TRY_AGAIN_TIMEOUT_IN_MILLISECONDS = 3200;
 
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
@@ -55,18 +54,16 @@ const PicturesPage: NextPage = () => {
 
   useEffect(() => {
     const loadMorePictures = async () => {
-      const response = await fetch(
-        `https://random.imagecdn.app/${PICTURE_WIDTH_IN_PIXELS}/${PICTURE_HEIGHT_IN_PIXELS}`
-      );
-      setPictures((prev) =>
-        [...prev, { name: response.url, size: -1, url: response.url }].filter(
-          (value: Picture, index: number, array: Picture[]) => {
-            return (
-              array.map((picture) => picture.url).indexOf(value.url) === index
-            );
-          }
-        )
-      );
+      try {
+        await new Promise((resolve) =>
+          setTimeout(resolve, TRY_AGAIN_TIMEOUT_IN_MILLISECONDS)
+        );
+        const response = await fetch(`/api/pictures`);
+        const newPictures = (await response.json()) as Picture[];
+        setPictures(newPictures);
+      } catch (error) {
+        console.error(error);
+      }
       setIsLoadingMore(!isLoadingMore);
     };
     if (inView) loadMorePictures();
@@ -123,8 +120,13 @@ const PicturesPage: NextPage = () => {
         return await convertFileToPicture(file);
       })
     );
-    newPictures = newPictures.filter((picture) => !!picture.name);
-    setPictures((prev) => [...prev, ...newPictures]);
+    await fetch("/api/pictures", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newPictures),
+    });
   };
   return (
     <>

@@ -1,5 +1,5 @@
 export interface Picture {
-    name: string;
-    size: number;
-    url: string;
+  name: string;
+  size: number;
+  url: string;
 }
