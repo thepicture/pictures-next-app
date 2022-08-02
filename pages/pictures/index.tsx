@@ -42,32 +42,33 @@ const FullScreenPictureGrid = styled.section`
   }
 `;
 
-const TRY_AGAIN_TIMEOUT_IN_MILLISECONDS = 3200;
+const TRY_AGAIN_TIMEOUT_IN_MILLISECONDS = 1024;
 
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
+  const [arePicturesEmpty, setArePicturesEmpty] = useState(false);
   const [openedPicture, setOpenedPicture] = useState<Picture>();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(true);
+  const [isIdle, setIsIdle] = useState(false);
   const { ref: scrollRef, inView } = useInView();
   const imageRef = useRef<any>();
 
   useEffect(() => {
     const loadMorePictures = async () => {
-      try {
-        await new Promise((resolve) =>
-          setTimeout(resolve, TRY_AGAIN_TIMEOUT_IN_MILLISECONDS)
-        );
-        const response = await fetch(`/api/pictures`);
-        const newPictures = (await response.json()) as Picture[];
-        setPictures(newPictures);
-      } catch (error) {
-        console.error(error);
-      }
-      setIsLoadingMore(!isLoadingMore);
+      await new Promise((resolve) =>
+        setTimeout(resolve, TRY_AGAIN_TIMEOUT_IN_MILLISECONDS)
+      );
+      if (isIdle) return;
+      const response = await fetch("/api/pictures");
+      const newPictures = (await response.json()) as Picture[];
+      setArePicturesEmpty(newPictures.length === 0);
+      setIsIdle(true);
+      setPictures(newPictures);
+      setIsLoadingMore((prev) => !prev);
     };
     if (inView) loadMorePictures();
-  }, [inView, isLoadingMore]);
+  }, [inView, isLoadingMore, isIdle]);
 
   const handlePictureOpen = (picture: Picture) => {
     setOpenedPicture(picture);
@@ -127,6 +128,7 @@ const PicturesPage: NextPage = () => {
       },
       body: JSON.stringify(newPictures),
     });
+    setIsIdle(false);
   };
   return (
     <>
@@ -149,13 +151,17 @@ const PicturesPage: NextPage = () => {
               pictures={pictures}
               onPictureOpen={handlePictureOpen}
             />
-            <CircularProgress
-              ref={scrollRef}
-              variant="indeterminate"
-              title="Loading more pictures at the bottom of the page"
-              aria-busy={inView}
-              aria-describedby="gallery"
-            />
+            {arePicturesEmpty && <p>No pictures here yet. Upload yours now!</p>}
+            {
+              <CircularProgress
+                sx={{ opacity: isIdle || arePicturesEmpty ? 0 : 1 }}
+                ref={scrollRef}
+                variant="indeterminate"
+                title="Loading more pictures at the bottom of the page"
+                aria-busy={inView}
+                aria-describedby="gallery"
+              />
+            }
           </Card>
         </ContainerGrid>
       </Background>
