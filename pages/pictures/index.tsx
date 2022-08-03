@@ -115,6 +115,7 @@ const PicturesPage: NextPage = () => {
         return await convertFileToPicture(file);
       })
     );
+    setPictures((prev) => [...prev, ...newPictures]);
     socket.emit("post picture", newPictures);
   };
 

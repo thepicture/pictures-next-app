@@ -18,7 +18,7 @@ export default async function handler(
       socket.emit("pictures", pictures);
       socket.on("post picture", (newPictures: Picture[]) => {
         pictures.push(...newPictures);
-        io.emit("post picture", newPictures);
+        socket.broadcast.emit("post picture", newPictures);
       });
     });
   }
