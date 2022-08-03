@@ -1,23 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Button,
-  Card,
-  CircularProgress,
-  Dialog,
-  Snackbar,
-  Typography,
-} from "@mui/material";
+
+import { Button, Card, Dialog, Snackbar, Typography } from "@mui/material";
+
 import styled from "styled-components";
+
 import { NextPage } from "next";
 import Head from "next/head";
-import { useInView } from "react-intersection-observer";
+
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
+
 import byteSize from "byte-size";
 
 import { Background } from "@pages";
 import { Gallery } from "@components";
 import { Uploader } from "@components";
 import { Picture } from "@interfaces";
+
+import io, { Socket } from "socket.io-client";
+
+let socket: Socket;
 
 const ContainerGrid = styled.main`
   display: grid;
@@ -42,37 +43,26 @@ const FullScreenPictureGrid = styled.section`
   }
 `;
 
-const TRY_AGAIN_TIMEOUT_IN_MILLISECONDS = 1024;
-
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
-  const [arePicturesEmpty, setArePicturesEmpty] = useState(false);
   const [openedPicture, setOpenedPicture] = useState<Picture>();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(true);
-  const [isIdle, setIsIdle] = useState(false);
-  const { ref: scrollRef, inView } = useInView();
   const imageRef = useRef<any>();
 
-  useEffect(() => {
-    const loadMorePictures = async () => {
-      await new Promise((resolve) =>
-        setTimeout(resolve, TRY_AGAIN_TIMEOUT_IN_MILLISECONDS)
-      );
-      if (isIdle) return;
-      const response = await fetch("/api/pictures");
-      const newPictures = (await response.json()) as Picture[];
-      setArePicturesEmpty(newPictures.length === 0);
-      setIsIdle(true);
-      setPictures(newPictures);
-      setIsLoadingMore((prev) => !prev);
-    };
-    if (inView) loadMorePictures();
-  }, [inView, isLoadingMore, isIdle]);
-
-  const handlePictureOpen = (picture: Picture) => {
-    setOpenedPicture(picture);
+  const initializeSocket = async () => {
+    await fetch("/api/pictures");
+    socket = io();
+    socket.on("pictures", (initialPictures: Picture[]) => {
+      setPictures(initialPictures);
+    });
+    socket.on("post picture", (newPictures: Picture[]) => {
+      setPictures((prev) => [...prev, ...newPictures]);
+    });
   };
+
+  useEffect(() => {
+    initializeSocket();
+  }, []);
 
   const onUpdate = useCallback(
     ({ x, y, scale }: { x: number; y: number; scale: number }) => {
@@ -86,6 +76,10 @@ const PicturesPage: NextPage = () => {
     },
     []
   );
+
+  const handlePictureOpen = (picture: Picture) => {
+    setOpenedPicture(picture);
+  };
 
   const handlePictureClose = () => {
     setOpenedPicture(undefined);
@@ -121,15 +115,9 @@ const PicturesPage: NextPage = () => {
         return await convertFileToPicture(file);
       })
     );
-    await fetch("/api/pictures", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newPictures),
-    });
-    setIsIdle(false);
+    socket.emit("post picture", newPictures);
   };
+
   return (
     <>
       <Head>
@@ -151,17 +139,9 @@ const PicturesPage: NextPage = () => {
               pictures={pictures}
               onPictureOpen={handlePictureOpen}
             />
-            {arePicturesEmpty && <p>No pictures here yet. Upload yours now!</p>}
-            {
-              <CircularProgress
-                sx={{ opacity: isIdle || arePicturesEmpty ? 0 : 1 }}
-                ref={scrollRef}
-                variant="indeterminate"
-                title="Loading more pictures at the bottom of the page"
-                aria-busy={inView}
-                aria-describedby="gallery"
-              />
-            }
+            {pictures.length === 0 && (
+              <p>No pictures here yet. Upload yours now!</p>
+            )}
           </Card>
         </ContainerGrid>
       </Background>

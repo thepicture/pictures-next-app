@@ -1,22 +1,28 @@
 import type { NextApiRequest, NextApiResponse, NextConfig } from "next";
 
+import { Server, Socket } from "socket.io";
+
 import { Picture } from "@interfaces";
 
 import { pictures } from "@persistency";
 
 export default async function handler(
-  req: NextApiRequest,
+  _req: NextApiRequest,
   res: NextApiResponse<Picture[]>
 ) {
-  if (req.method === "POST") {
-    const newPictures = req.body as Picture[];
-    pictures.push(...newPictures);
-    return res.status(201).json(pictures);
-  } else if (req.method === "GET") {
-    return res.status(200).json(pictures);
-  } else {
-    return res.status(405);
+  const responseSocket = res.socket as any;
+  if (!responseSocket.server.io) {
+    const io = new Server(responseSocket.server);
+    responseSocket.server.io = io;
+    io.on("connection", (socket: Socket) => {
+      socket.emit("pictures", pictures);
+      socket.on("post picture", (newPictures: Picture[]) => {
+        pictures.push(...newPictures);
+        io.emit("post picture", newPictures);
+      });
+    });
   }
+  res.end();
 }
 
 export const config = {
