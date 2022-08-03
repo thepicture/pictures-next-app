@@ -18,6 +18,7 @@ import { Uploader } from "@components";
 import { Picture } from "@interfaces";
 
 import io, { Socket } from "socket.io-client";
+import imageCompression from "browser-image-compression";
 
 let socket: Socket;
 
@@ -48,6 +49,14 @@ const ImageContainer = styled.div`
   height: 100%;
   width: 100%;
 `;
+
+interface ImageCompressionOptions {
+  maxSizeMB: number;
+}
+
+const IMAGE_COMPRESSION_OPTIONS: ImageCompressionOptions = {
+  maxSizeMB: 0.5,
+};
 
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
@@ -96,9 +105,13 @@ const PicturesPage: NextPage = () => {
   };
 
   const convertFileToPicture = async (file: File) => {
-    return new Promise<Picture>((resolve) => {
+    return new Promise<Picture>(async (resolve) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      const compressedFile = await imageCompression(
+        file,
+        IMAGE_COMPRESSION_OPTIONS
+      );
+      reader.readAsDataURL(compressedFile);
       reader.onload = () => {
         if (
           pictures.some((picture) => picture.url === (reader.result as string))
@@ -107,8 +120,8 @@ const PicturesPage: NextPage = () => {
           return resolve({ name: "", size: -1, url: "" });
         }
         return resolve({
-          name: file.name,
-          size: file.size,
+          name: compressedFile.name,
+          size: compressedFile.size,
           url: reader.result as string,
         });
       };
@@ -123,7 +136,7 @@ const PicturesPage: NextPage = () => {
     );
     newPictures = newPictures.filter((picture) => picture.size > 0);
     setPictures((prev) => [...prev, ...newPictures]);
-    socket.emit("post picture", newPictures);
+    for (const picture of newPictures) socket.emit("post picture", [picture]);
   };
 
   return (

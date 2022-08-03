@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse, NextConfig } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 import { Server, Socket } from "socket.io";
 
@@ -24,11 +24,3 @@ export default async function handler(
   }
   res.end();
 }
-
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "4mb",
-    },
-  },
-};
