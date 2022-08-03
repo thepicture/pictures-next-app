@@ -115,6 +115,7 @@ const PicturesPage: NextPage = () => {
         return await convertFileToPicture(file);
       })
     );
+    newPictures = newPictures.filter((picture) => picture.size > 0);
     setPictures((prev) => [...prev, ...newPictures]);
     socket.emit("post picture", newPictures);
   };
@@ -176,7 +177,7 @@ const PicturesPage: NextPage = () => {
       <Snackbar
         open={isSnackbarOpen}
         onClose={handleSnackbarClose}
-        message="You have uploaded this picture already"
+        message="One or more pictures have already been uploaded"
       ></Snackbar>
     </>
   );
