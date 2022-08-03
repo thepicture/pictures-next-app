@@ -6,6 +6,7 @@ import styled from "styled-components";
 
 import { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 
@@ -41,6 +42,11 @@ const FullScreenPictureGrid = styled.section`
     width: 100%;
     height: 100%;
   }
+`;
+
+const ImageContainer = styled.div`
+  height: 100%;
+  width: 100%;
 `;
 
 const PicturesPage: NextPage = () => {
@@ -169,7 +175,13 @@ const PicturesPage: NextPage = () => {
               : openedPicture && byteSize(openedPicture.size).toString()}
           </Typography>
           <QuickPinchZoom onUpdate={onUpdate}>
-            <img src={openedPicture?.url} alt="" ref={imageRef} />
+            <ImageContainer ref={imageRef}>
+              <Image
+                src={openedPicture?.url || "/vercel.svg"}
+                alt=""
+                layout="fill"
+              />
+            </ImageContainer>
           </QuickPinchZoom>
           <Button onClick={handlePictureClose}>Close</Button>
         </FullScreenPictureGrid>
