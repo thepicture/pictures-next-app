@@ -12,13 +12,13 @@ import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 
 import byteSize from "byte-size";
 
-import { Background } from "@pages";
-import { Gallery } from "@components";
-import { Uploader } from "@components";
-import { Picture } from "@interfaces";
-
 import io, { Socket } from "socket.io-client";
 import imageCompression from "browser-image-compression";
+
+import { Background } from "@pages";
+import { Footer, Gallery, Header } from "@components";
+import { Uploader } from "@components";
+import { Picture } from "@interfaces";
 
 let socket: Socket;
 
@@ -29,11 +29,21 @@ const ContainerGrid = styled.main`
   padding-top: 1em;
   padding-bottom: 1em;
   height: 100%;
-  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "h"
+    "u"
+    "p"
+    "f";
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: 1fr;
   gap: 1em;
 
   @media print, screen and (min-width: 640px) {
-    grid-template-rows: initial;
+    grid-template-areas:
+      "h h"
+      "u p"
+      "f f";
+    grid-template-rows: auto 1fr auto;
     grid-template-columns: auto 1fr;
   }
 `;
@@ -157,6 +167,7 @@ const PicturesPage: NextPage = () => {
       </Head>
       <Background>
         <ContainerGrid>
+          <Header />
           <Card elevation={16} sx={{ p: 4 }}>
             <Uploader onUpload={handleUpload} />
           </Card>
@@ -170,6 +181,7 @@ const PicturesPage: NextPage = () => {
               <p>No pictures here yet. Upload yours now!</p>
             )}
           </Card>
+          <Footer />
         </ContainerGrid>
       </Background>
       <Dialog open={!!openedPicture} fullScreen>
