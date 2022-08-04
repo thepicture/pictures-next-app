@@ -1,4 +1,4 @@
-export * from "./Gallery/Gallery";
-export * from "./Uploader/Uploader";
+export * from "./Gallery";
+export * from "./Uploader";
 export * from "./Header";
 export * from "./Footer";

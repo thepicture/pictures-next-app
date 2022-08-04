@@ -20,6 +20,13 @@ export default async function handler(
         pictures.push(...newPictures);
         socket.broadcast.emit("post picture", newPictures);
       });
+      socket.on("delete picture by name", (pictureName: string) => {
+        const pictureIndex = pictures.findIndex(
+          (picture) => picture.name === pictureName
+        );
+        pictures.splice(pictureIndex, 1);
+        socket.broadcast.emit("delete picture by name", pictureIndex);
+      });
     });
   }
   res.end();

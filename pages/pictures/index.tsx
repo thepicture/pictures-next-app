@@ -89,6 +89,11 @@ const PicturesPage: NextPage = () => {
     socket.on("post picture", (newPictures: Picture[]) => {
       setPictures((prev) => [...prev, ...newPictures]);
     });
+    socket.on("delete picture by name", (pictureIndex: number) => {
+      setPictures((prev) =>
+        prev.filter((_value, index) => index != pictureIndex)
+      );
+    });
   };
 
   useEffect(() => {
@@ -114,6 +119,13 @@ const PicturesPage: NextPage = () => {
 
   const handlePictureClose = () => {
     setOpenedPicture(undefined);
+  };
+
+  const handlePictureDelete = (pictureName: string) => {
+    socket.emit("delete picture by name", pictureName);
+    setPictures((prev) =>
+      prev.filter((picture) => picture.name !== pictureName)
+    );
   };
 
   const handleSnackbarClose = () => {
@@ -176,6 +188,7 @@ const PicturesPage: NextPage = () => {
               id="gallery"
               pictures={pictures}
               onPictureOpen={handlePictureOpen}
+              onPictureDelete={handlePictureDelete}
             />
             {pictures.length === 0 && (
               <p>No pictures here yet. Upload yours now!</p>
