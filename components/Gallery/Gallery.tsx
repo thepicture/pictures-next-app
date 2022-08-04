@@ -47,6 +47,7 @@ export const Gallery: React.FC<GalleryProps> = ({
         return (
           <ImageWrapperButton
             key={index}
+            type="button"
             tabIndex={0}
             onClick={() => onPictureOpen(picture)}
             onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>

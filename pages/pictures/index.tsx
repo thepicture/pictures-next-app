@@ -31,6 +31,11 @@ const ContainerGrid = styled.main`
   height: 100%;
   grid-template-rows: auto 1fr;
   gap: 1em;
+
+  @media print, screen and (min-width: 640px) {
+    grid-template-rows: initial;
+    grid-template-columns: auto 1fr;
+  }
 `;
 
 const FullScreenPictureGrid = styled.section`
