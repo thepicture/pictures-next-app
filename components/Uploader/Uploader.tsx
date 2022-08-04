@@ -20,7 +20,7 @@ export const Uploader: React.FC<UploaderProps> = ({ onUpload }) => {
       <input
         multiple
         type="file"
-        accept="image/*"
+        accept="image/*;capture=camera"
         onInput={handleInput}
         ref={ref}
         hidden
