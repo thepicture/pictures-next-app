@@ -82,7 +82,7 @@ export const GalleryPicture: React.FC<GalleryPictureProps> = ({
           onPictureDelete(picture.name);
         }}
         onKeyDownCapture={(event: React.KeyboardEvent<HTMLDivElement>) => {
-          if (event.key === KeyCodes.TAB) return;
+          if (KeyCodes.NAVIGATION_KEYS.includes(event.key)) return;
           event.stopPropagation();
           onPictureDelete(picture.name);
         }}
@@ -96,4 +96,6 @@ export const GalleryPicture: React.FC<GalleryPictureProps> = ({
 
 export class KeyCodes {
   static TAB = "Tab";
+  static SHIFT = "Shift";
+  static NAVIGATION_KEYS = [KeyCodes.TAB, KeyCodes.SHIFT];
 }
