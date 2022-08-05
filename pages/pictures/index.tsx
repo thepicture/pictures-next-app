@@ -113,6 +113,7 @@ const PicturesPage: NextPage = () => {
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const imageRef = useRef<any>();
+  const dialogTextFieldRef = useRef<HTMLInputElement>(null);
 
   const initializeSocket = async () => {
     await fetch("/api/pictures");
@@ -137,6 +138,11 @@ const PicturesPage: NextPage = () => {
   useEffect(() => {
     initializeSocket();
   }, []);
+
+  useEffect(() => {
+    if (isDialogOpen && dialogTextFieldRef.current)
+      dialogTextFieldRef.current.focus();
+  }, [isDialogOpen]);
 
   const onUpdate = useCallback(
     ({ x, y, scale }: { x: number; y: number; scale: number }) => {
@@ -313,16 +319,15 @@ const PicturesPage: NextPage = () => {
             empty during picture upload, you cannot delete the picture.
           </DialogContentText>
           <TextField
-            autoFocus
-            autoComplete="one-time-code"
-            value={passwordForExistingPictureDeletion}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               setPasswordForExistingPictureDeletion(event.target.value)
             }
-            margin="dense"
-            id="password"
-            label="Password for deletion"
+            value={passwordForExistingPictureDeletion}
             type="password"
+            autoComplete="one-time-code"
+            label="Password for deletion"
+            inputRef={dialogTextFieldRef}
+            margin="dense"
             fullWidth
             variant="standard"
           />
