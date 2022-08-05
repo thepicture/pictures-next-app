@@ -14,9 +14,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Slide,
   Snackbar,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import styled from "styled-components";
@@ -95,14 +98,20 @@ const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
   const [pictureName, setPictureName] = useState("");
   const [openedPicture, setOpenedPicture] = useState<Picture>();
+
   const [passwordForDeletion, setPasswordForDeletion] = useState("");
   const [
     passwordForExistingPictureDeletion,
     setPasswordForExistingPictureDeletion,
   ] = useState("");
+
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   const imageRef = useRef<any>();
 
   const initializeSocket = async () => {
@@ -290,7 +299,13 @@ const PicturesPage: NextPage = () => {
         onClose={handleSnackbarClose}
         message={snackbarMessage}
       />
-      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        keepMounted
+        fullScreen={fullScreen}
+        TransitionComponent={Transition}
+      >
         <DialogTitle>Confirm your identity</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -334,5 +349,14 @@ const PicturesPage: NextPage = () => {
     </>
   );
 };
+
+const Transition = React.forwardRef(function Transition(
+  props: {
+    children: React.ReactElement<any, any>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default PicturesPage;
