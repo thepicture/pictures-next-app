@@ -1,6 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-import { Button, Card, Dialog, Snackbar, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  Dialog,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 import styled from "styled-components";
 
@@ -77,6 +90,8 @@ const IMAGE_COMPRESSION_OPTIONS: ImageCompressionOptions = {
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
   const [openedPicture, setOpenedPicture] = useState<Picture>();
+  const [passwordForDeletion, setPasswordForDeletion] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const imageRef = useRef<any>();
 
@@ -93,6 +108,10 @@ const PicturesPage: NextPage = () => {
       setPictures((prev) =>
         prev.filter((_value, index) => index != pictureIndex)
       );
+    });
+    socket.on("show snackbar", (message: string) => {
+      setSnackbarMessage(message);
+      setIsSnackbarOpen(true);
     });
   };
 
@@ -122,10 +141,15 @@ const PicturesPage: NextPage = () => {
   };
 
   const handlePictureDelete = (pictureName: string) => {
-    socket.emit("delete picture by name", pictureName);
-    setPictures((prev) =>
-      prev.filter((picture) => picture.name !== pictureName)
+    const passwordForExistingPictureDeletion = window.prompt(
+      "Enter password for deletion",
+      ""
     );
+    if (!passwordForExistingPictureDeletion) return;
+    socket.emit("delete picture by name", {
+      pictureName,
+      passwordForExistingPictureDeletion,
+    });
   };
 
   const handleSnackbarClose = () => {
@@ -144,6 +168,7 @@ const PicturesPage: NextPage = () => {
         if (
           pictures.some((picture) => picture.url === (reader.result as string))
         ) {
+          setSnackbarMessage("One or more pictures have already been uploaded");
           setIsSnackbarOpen(true);
           return resolve({ name: "", size: -1, url: "" });
         }
@@ -151,6 +176,7 @@ const PicturesPage: NextPage = () => {
           name: compressedFile.name,
           size: compressedFile.size,
           url: reader.result as string,
+          passwordForDeletion,
         });
       };
     });
@@ -165,6 +191,11 @@ const PicturesPage: NextPage = () => {
     newPictures = newPictures.filter((picture) => picture.size > 0);
     setPictures((prev) => [...prev, ...newPictures]);
     for (const picture of newPictures) socket.emit("post picture", [picture]);
+    setPasswordForDeletion("");
+  };
+
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPasswordForDeletion(event.target.value);
   };
 
   return (
@@ -182,6 +213,14 @@ const PicturesPage: NextPage = () => {
           <Header />
           <Card elevation={16} sx={{ p: 4 }}>
             <Uploader onUpload={handleUpload} />
+            <TextField
+              value={passwordForDeletion}
+              onChange={handlePasswordChange}
+              title="Password for picture deletion"
+              placeholder="Password for deletion"
+              fullWidth
+              sx={{ mt: 2 }}
+            />
           </Card>
           <Card elevation={16} sx={{ p: 4, overflow: "hidden visible" }}>
             <Gallery
@@ -233,7 +272,7 @@ const PicturesPage: NextPage = () => {
       <Snackbar
         open={isSnackbarOpen}
         onClose={handleSnackbarClose}
-        message="One or more pictures have already been uploaded"
+        message={snackbarMessage}
       ></Snackbar>
     </>
   );
