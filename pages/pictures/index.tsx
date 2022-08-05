@@ -10,6 +10,10 @@ import {
   Button,
   Card,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Snackbar,
   TextField,
   Typography,
@@ -89,10 +93,16 @@ const IMAGE_COMPRESSION_OPTIONS: ImageCompressionOptions = {
 
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
+  const [pictureName, setPictureName] = useState("");
   const [openedPicture, setOpenedPicture] = useState<Picture>();
   const [passwordForDeletion, setPasswordForDeletion] = useState("");
+  const [
+    passwordForExistingPictureDeletion,
+    setPasswordForExistingPictureDeletion,
+  ] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const imageRef = useRef<any>();
 
   const initializeSocket = async () => {
@@ -140,16 +150,20 @@ const PicturesPage: NextPage = () => {
     setOpenedPicture(undefined);
   };
 
-  const handlePictureDelete = (pictureName: string) => {
-    const passwordForExistingPictureDeletion = window.prompt(
-      "Enter password for deletion",
-      ""
-    );
-    if (!passwordForExistingPictureDeletion) return;
-    socket.emit("delete picture by name", {
-      pictureName,
-      passwordForExistingPictureDeletion,
-    });
+  const handleOpenDialogForPictureName = (pictureName: string) => {
+    setIsDialogOpen(true);
+    setPictureName(pictureName);
+  };
+
+  const handlePictureDelete = () => {
+    if (passwordForExistingPictureDeletion) {
+      socket.emit("delete picture by name", {
+        pictureName,
+        passwordForExistingPictureDeletion,
+      });
+    }
+    setPictureName(pictureName);
+    setPasswordForExistingPictureDeletion("");
   };
 
   const handleSnackbarClose = () => {
@@ -216,6 +230,8 @@ const PicturesPage: NextPage = () => {
             <TextField
               value={passwordForDeletion}
               onChange={handlePasswordChange}
+              autoComplete="one-time-code"
+              type="password"
               title="Password for picture deletion"
               placeholder="Password for deletion"
               fullWidth
@@ -227,7 +243,7 @@ const PicturesPage: NextPage = () => {
               id="gallery"
               pictures={pictures}
               onPictureOpen={handlePictureOpen}
-              onPictureDelete={handlePictureDelete}
+              onPictureDelete={handleOpenDialogForPictureName}
             />
             {pictures.length === 0 && (
               <p>No pictures here yet. Upload yours now!</p>
@@ -273,7 +289,48 @@ const PicturesPage: NextPage = () => {
         open={isSnackbarOpen}
         onClose={handleSnackbarClose}
         message={snackbarMessage}
-      ></Snackbar>
+      />
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <DialogTitle>Confirm your identity</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            To delete the picture, you need to enter password. If password was
+            empty during picture upload, you cannot delete the picture.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            autoComplete="one-time-code"
+            value={passwordForExistingPictureDeletion}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              setPasswordForExistingPictureDeletion(event.target.value)
+            }
+            margin="dense"
+            id="password"
+            label="Password for deletion"
+            type="password"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setPasswordForExistingPictureDeletion("");
+              setIsDialogOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setIsDialogOpen(false);
+              handlePictureDelete();
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
