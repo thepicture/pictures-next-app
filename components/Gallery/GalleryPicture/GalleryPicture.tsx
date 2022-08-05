@@ -81,9 +81,19 @@ export const GalleryPicture: React.FC<GalleryPictureProps> = ({
           event.stopPropagation();
           onPictureDelete(picture.name);
         }}
+        onKeyDownCapture={(event: React.KeyboardEvent<HTMLDivElement>) => {
+          if (event.key === KeyCodes.TAB) return;
+          event.stopPropagation();
+          onPictureDelete(picture.name);
+        }}
         role="button"
+        tabIndex={0}
         title="Delete picture"
       />
     </ImageWrapperButton>
   );
 };
+
+export class KeyCodes {
+  static TAB = "Tab";
+}
