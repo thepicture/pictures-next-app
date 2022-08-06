@@ -43,6 +43,17 @@ import { Uploader } from "@components";
 import { Picture } from "@interfaces";
 import { useAsk } from "@hooks";
 
+import {
+  API_PICTURES,
+  DELETE_PICTURE_BY_NAME_AND_PASSWORD,
+  IMAGE_PLACEHOLDER,
+  PICTURES,
+  PICTURE_IS_DUPLICATE,
+  POST_PICTURE,
+  SHOW_SNACKBAR,
+  UP,
+} from "@constants";
+
 let socket: Socket;
 
 const ContainerGrid = styled.main`
@@ -125,20 +136,20 @@ const PicturesPage: NextPage = () => {
   const { ask, ConfirmDialogWithProps } = useAsk();
 
   const initializeSocket = async () => {
-    await fetch("/api/pictures");
+    await fetch(API_PICTURES);
     socket = io();
-    socket.on("pictures", (initialPictures: Picture[]) => {
+    socket.on(PICTURES, (initialPictures: Picture[]) => {
       setPictures(initialPictures);
     });
-    socket.on("post picture", (newPictures: Picture[]) => {
+    socket.on(POST_PICTURE, (newPictures: Picture[]) => {
       setPictures((prev) => [...prev, ...newPictures]);
     });
-    socket.on("delete picture by name", (pictureIndex: number) => {
+    socket.on(DELETE_PICTURE_BY_NAME_AND_PASSWORD, (pictureIndex: number) => {
       setPictures((prev) =>
         prev.filter((_value, index) => index != pictureIndex)
       );
     });
-    socket.on("show snackbar", (message: string) => {
+    socket.on(SHOW_SNACKBAR, (message: string) => {
       setSnackbarMessage(message);
       setIsSnackbarOpen(true);
     });
@@ -182,7 +193,7 @@ const PicturesPage: NextPage = () => {
 
   const handlePictureDelete = () => {
     if (passwordForExistingPictureDeletion) {
-      socket.emit("delete picture by name", {
+      socket.emit(DELETE_PICTURE_BY_NAME_AND_PASSWORD, {
         pictureName,
         passwordForExistingPictureDeletion,
       });
@@ -207,7 +218,7 @@ const PicturesPage: NextPage = () => {
         if (
           pictures.some((picture) => picture.url === (reader.result as string))
         ) {
-          setSnackbarMessage("One or more pictures have already been uploaded");
+          setSnackbarMessage(PICTURE_IS_DUPLICATE);
           setIsSnackbarOpen(true);
           return resolve({ name: "", size: -1, url: "" });
         }
@@ -230,7 +241,7 @@ const PicturesPage: NextPage = () => {
     newPictures = newPictures.filter((picture) => picture.size > 0);
     setPictures((prev) => [...prev, ...newPictures]);
     for (const picture of newPictures) {
-      socket.emit("post picture", [picture]);
+      socket.emit(POST_PICTURE, [picture]);
     }
   };
 
@@ -303,14 +314,12 @@ const PicturesPage: NextPage = () => {
                 : openedPicture?.name.split(".")[0]}
             </Typography>
             <Typography textAlign="center">
-              {openedPicture && openedPicture?.size === -1
-                ? "Size is unknown"
-                : openedPicture && byteSize(openedPicture.size).toString()}
+              {openedPicture && byteSize(openedPicture.size).toString()}
             </Typography>
             <QuickPinchZoom onUpdate={onUpdate}>
               <ImageContainer ref={imageRef}>
                 <Image
-                  src={openedPicture?.url || "/vercel.svg"}
+                  src={openedPicture?.url || IMAGE_PLACEHOLDER}
                   alt=""
                   layout="fill"
                 />
@@ -382,7 +391,7 @@ const Transition = React.forwardRef(function Transition(
   },
   ref: React.Ref<unknown>
 ) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction={UP} ref={ref} {...props} />;
 });
 
 export default PicturesPage;

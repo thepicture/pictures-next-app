@@ -22,7 +22,8 @@
       "@pages": ["pages"],
       "@persistency": ["persistency"],
       "@hooks": ["hooks"],
-      "@specific": ["specific"]
+      "@specific": ["specific"],
+      "@constants": ["constants"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

@@ -3,8 +3,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Server, Socket } from "socket.io";
 
 import { Picture } from "@interfaces";
-
 import { pictures } from "@persistency";
+import {
+  CONNECTION,
+  DELETE_PICTURE_BY_NAME_AND_PASSWORD,
+  INCORRECT_PASSWORD_FOR_DELETION,
+  PICTURES,
+  POST_PICTURE,
+  SHOW_SNACKBAR,
+} from "@constants";
 
 export interface PictureDeletionCredentials {
   pictureName: string;
@@ -19,17 +26,17 @@ export default async function handler(
   if (!responseSocket.server.io) {
     const io = new Server(responseSocket.server);
     responseSocket.server.io = io;
-    io.on("connection", (socket: Socket) => {
-      socket.emit("pictures", mapPicturesToBeWithoutPassword(pictures));
-      socket.on("post picture", (newPictures: Picture[]) => {
+    io.on(CONNECTION, (socket: Socket) => {
+      socket.emit(PICTURES, mapPicturesToBeWithoutPassword(pictures));
+      socket.on(POST_PICTURE, (newPictures: Picture[]) => {
         pictures.push(...newPictures);
         socket.broadcast.emit(
-          "post picture",
+          POST_PICTURE,
           mapPicturesToBeWithoutPassword(newPictures)
         );
       });
       socket.on(
-        "delete picture by name",
+        DELETE_PICTURE_BY_NAME_AND_PASSWORD,
         ({
           pictureName,
           passwordForExistingPictureDeletion,
@@ -43,10 +50,10 @@ export default async function handler(
             pictures[pictureIndex].passwordForDeletion ===
               passwordForExistingPictureDeletion;
           if (!canDeletePicture) {
-            socket.emit("show snackbar", "Incorrect password for deletion");
+            socket.emit(SHOW_SNACKBAR, INCORRECT_PASSWORD_FOR_DELETION);
           } else {
             pictures.splice(pictureIndex, 1);
-            io.emit("delete picture by name", pictureIndex);
+            io.emit(DELETE_PICTURE_BY_NAME_AND_PASSWORD, pictureIndex);
           }
         }
       );
