@@ -113,6 +113,7 @@ const PicturesPage: NextPage = () => {
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
 
   const [files, setFiles] = useState<File[]>([]);
 
@@ -166,10 +167,11 @@ const PicturesPage: NextPage = () => {
 
   const handlePictureOpen = (picture: Picture) => {
     setOpenedPicture(picture);
+    setIsFullScreenOpen(true);
   };
 
   const handlePictureClose = () => {
-    setOpenedPicture(undefined);
+    setIsFullScreenOpen(false);
   };
 
   const handleOpenDialogForPictureName = (pictureName: string) => {
@@ -285,39 +287,41 @@ const PicturesPage: NextPage = () => {
           <Footer />
         </ContainerGrid>
       </Background>
-      <Dialog open={!!openedPicture} fullScreen>
-        <FullScreenPictureGrid>
-          <Typography
-            textAlign="center"
-            component="h2"
-            variant="h6"
-            sx={{
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-              overflow: "hidden",
-            }}
-          >
-            {openedPicture?.size === -1
-              ? openedPicture?.name
-              : openedPicture?.name.split(".")[0]}
-          </Typography>
-          <Typography textAlign="center">
-            {openedPicture && openedPicture?.size === -1
-              ? "Size is unknown"
-              : openedPicture && byteSize(openedPicture.size).toString()}
-          </Typography>
-          <QuickPinchZoom onUpdate={onUpdate}>
-            <ImageContainer ref={imageRef}>
-              <Image
-                src={openedPicture?.url || "/vercel.svg"}
-                alt=""
-                layout="fill"
-              />
-            </ImageContainer>
-          </QuickPinchZoom>
-          <Button onClick={handlePictureClose}>Close</Button>
-        </FullScreenPictureGrid>
-      </Dialog>
+      {isFullScreenOpen && (
+        <Dialog open={!!openedPicture} fullScreen>
+          <FullScreenPictureGrid>
+            <Typography
+              textAlign="center"
+              component="h2"
+              variant="h6"
+              sx={{
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+              }}
+            >
+              {openedPicture?.size === -1
+                ? openedPicture?.name
+                : openedPicture?.name.split(".")[0]}
+            </Typography>
+            <Typography textAlign="center">
+              {openedPicture && openedPicture?.size === -1
+                ? "Size is unknown"
+                : openedPicture && byteSize(openedPicture.size).toString()}
+            </Typography>
+            <QuickPinchZoom onUpdate={onUpdate}>
+              <ImageContainer ref={imageRef}>
+                <Image
+                  src={openedPicture?.url || "/vercel.svg"}
+                  alt=""
+                  layout="fill"
+                />
+              </ImageContainer>
+            </QuickPinchZoom>
+            <Button onClick={handlePictureClose}>Close</Button>
+          </FullScreenPictureGrid>
+        </Dialog>
+      )}
       <Snackbar
         open={isSnackbarOpen}
         onClose={handleSnackbarClose}
