@@ -1,6 +1,7 @@
 import React, {
   ChangeEvent,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -33,12 +34,14 @@ import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 import byteSize from "byte-size";
 
 import io, { Socket } from "socket.io-client";
+
 import imageCompression from "browser-image-compression";
 
 import { Background } from "@pages";
-import { ConfirmDialog, Footer, Gallery, Header } from "@components";
+import { Footer, Gallery, Header } from "@components";
 import { Uploader } from "@components";
 import { Picture } from "@interfaces";
+import { useAsk } from "@hooks";
 
 let socket: Socket;
 
@@ -112,16 +115,14 @@ const PicturesPage: NextPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
-
-  const [files, setFiles] = useState<File[]>([]);
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const imageRef = useRef<any>();
   const dialogTextFieldRef = useRef<HTMLInputElement>(null);
+  const { ask, ConfirmDialogWithProps } = useAsk();
 
   const initializeSocket = async () => {
     await fetch("/api/pictures");
@@ -220,18 +221,7 @@ const PicturesPage: NextPage = () => {
     });
   };
 
-  const handleUpload = (files: File[]) => {
-    setFiles(files);
-    if (passwordForDeletion) {
-      handleUploadWithAgreement(true);
-    } else {
-      setIsConfirmDialogOpen(true);
-    }
-  };
-
-  const handleUploadWithAgreement = async (agree: boolean) => {
-    setIsConfirmDialogOpen(false);
-    if (!agree) return;
+  const postFiles = async (files: File[]) => {
     let newPictures = await Promise.all(
       files.map(async (file) => {
         return await convertFileToPicture(file);
@@ -239,8 +229,16 @@ const PicturesPage: NextPage = () => {
     );
     newPictures = newPictures.filter((picture) => picture.size > 0);
     setPictures((prev) => [...prev, ...newPictures]);
-    for (const picture of newPictures) socket.emit("post picture", [picture]);
-    setPasswordForDeletion("");
+    for (const picture of newPictures) {
+      socket.emit("post picture", [picture]);
+    }
+  };
+
+  const handleUpload = async (files: File[]) => {
+    if (passwordForDeletion || (await ask(PICTURE_DELETE_WARNING))) {
+      setPasswordForDeletion("");
+      postFiles(files);
+    }
   };
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -373,11 +371,7 @@ const PicturesPage: NextPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <ConfirmDialog
-        question={PICTURE_DELETE_WARNING}
-        open={isConfirmDialogOpen}
-        onClose={handleUploadWithAgreement}
-      />
+      <ConfirmDialogWithProps />
     </>
   );
 };

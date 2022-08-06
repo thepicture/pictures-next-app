@@ -20,7 +20,9 @@
       "@styles": ["styles"],
       "@components": ["components"],
       "@pages": ["pages"],
-      "@persistency": ["persistency"]
+      "@persistency": ["persistency"],
+      "@hooks": ["hooks"],
+      "@specific": ["specific"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

@@ -7,19 +7,18 @@ import DialogTitle from "@mui/material/DialogTitle";
 
 export interface ConfirmDialogProps {
   question: string;
-  onClose: (agree: boolean) => void;
   open: boolean;
+  onConfirm: (isConfirmed: boolean) => void;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
-  onClose,
   question,
   open,
+  onConfirm,
 }) => {
   return (
     <Dialog
       open={open}
-      onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
@@ -30,8 +29,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(true)}>Yes</Button>
-        <Button onClick={() => onClose(false)} autoFocus>
+        <Button onClick={() => onConfirm(true)}>Yes</Button>
+        <Button onClick={() => onConfirm(false)} autoFocus>
           No
         </Button>
       </DialogActions>
