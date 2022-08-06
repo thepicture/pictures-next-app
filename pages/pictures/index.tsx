@@ -36,7 +36,7 @@ import io, { Socket } from "socket.io-client";
 import imageCompression from "browser-image-compression";
 
 import { Background } from "@pages";
-import { Footer, Gallery, Header } from "@components";
+import { ConfirmDialog, Footer, Gallery, Header } from "@components";
 import { Uploader } from "@components";
 import { Picture } from "@interfaces";
 
@@ -94,6 +94,10 @@ const IMAGE_COMPRESSION_OPTIONS: ImageCompressionOptions = {
   maxSizeMB: 0.5,
 };
 
+const PICTURE_DELETE_WARNING = `You haven't installed a password for deletion.
+ Deletion will be impossible.
+ Continue uploading without a password for deletion?`;
+
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
   const [pictureName, setPictureName] = useState("");
@@ -108,6 +112,9 @@ const PicturesPage: NextPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+
+  const [files, setFiles] = useState<File[]>([]);
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -211,7 +218,16 @@ const PicturesPage: NextPage = () => {
     });
   };
 
-  const handleUpload = async (files: File[]) => {
+  const handleUpload = (files: File[]) => {
+    setFiles(files);
+    if (!passwordForDeletion) {
+      setIsConfirmDialogOpen(true);
+    }
+  };
+
+  const handleUploadWithAgreement = async (agree: boolean) => {
+    setIsConfirmDialogOpen(false);
+    if (!agree) return;
     let newPictures = await Promise.all(
       files.map(async (file) => {
         return await convertFileToPicture(file);
@@ -351,6 +367,11 @@ const PicturesPage: NextPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ConfirmDialog
+        question={PICTURE_DELETE_WARNING}
+        open={isConfirmDialogOpen}
+        onClose={handleUploadWithAgreement}
+      />
     </>
   );
 };
