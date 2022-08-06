@@ -46,7 +46,7 @@ export default async function handler(
             socket.emit("show snackbar", "Incorrect password for deletion");
           } else {
             pictures.splice(pictureIndex, 1);
-            socket.emit("delete picture by name", pictureIndex);
+            io.emit("delete picture by name", pictureIndex);
           }
         }
       );
