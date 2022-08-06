@@ -220,7 +220,9 @@ const PicturesPage: NextPage = () => {
 
   const handleUpload = (files: File[]) => {
     setFiles(files);
-    if (!passwordForDeletion) {
+    if (passwordForDeletion) {
+      handleUploadWithAgreement(true);
+    } else {
       setIsConfirmDialogOpen(true);
     }
   };
