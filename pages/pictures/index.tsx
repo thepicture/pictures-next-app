@@ -1,7 +1,6 @@
 import React, {
   ChangeEvent,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -29,6 +28,8 @@ import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 
+import { useSession } from "next-auth/react";
+
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 
 import byteSize from "byte-size";
@@ -37,7 +38,7 @@ import io, { Socket } from "socket.io-client";
 
 import imageCompression from "browser-image-compression";
 
-import { Background } from "@pages";
+import { Background, StyledLink } from "@pages";
 import { Footer, Gallery, Header } from "@components";
 import { Uploader } from "@components";
 import { Picture } from "@interfaces";
@@ -50,9 +51,11 @@ import {
   PICTURES,
   PICTURE_IS_DUPLICATE,
   POST_PICTURE,
+  RELATIVE_SIGN_IN_URL,
   SHOW_SNACKBAR,
   UP,
 } from "@constants";
+import Link from "next/link";
 
 let socket: Socket;
 
@@ -135,6 +138,8 @@ const PicturesPage: NextPage = () => {
   const dialogTextFieldRef = useRef<HTMLInputElement>(null);
   const { ask, ConfirmDialogWithProps } = useAsk();
 
+  const { data: session } = useSession();
+
   const initializeSocket = async () => {
     await fetch(API_PICTURES);
     socket = io();
@@ -179,6 +184,19 @@ const PicturesPage: NextPage = () => {
     },
     []
   );
+
+  if (!session) {
+    return (
+      <Background>
+        <Card elevation={16} sx={{ p: 4 }}>
+          <Typography mb={2}>You must sign in</Typography>
+          <Link href={RELATIVE_SIGN_IN_URL}>
+            <StyledLink>Sign In</StyledLink>
+          </Link>
+        </Card>
+      </Background>
+    );
+  }
 
   const handlePictureOpen = (picture: Picture) => {
     setOpenedPicture(picture);
