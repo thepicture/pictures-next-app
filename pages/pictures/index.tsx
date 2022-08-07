@@ -157,6 +157,9 @@ const PicturesPage: NextPage = () => {
 
   useEffect(() => {
     initializeSocket();
+    return () => {
+      socket?.close();
+    };
   }, []);
 
   useEffect(() => {
