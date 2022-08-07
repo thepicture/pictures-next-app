@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -10,7 +12,6 @@ import { Card, Typography } from "@mui/material";
 import styled, { css } from "styled-components";
 
 import { RELATIVE_PICTURES_URL, RELATIVE_SIGN_IN_URL } from "@constants";
-import { useEffect } from "react";
 
 export const Background = styled.div`
   display: flex;
@@ -48,8 +49,8 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (session) router.replace("/pictures");
-  }, [session]);
+    if (session) router.replace(RELATIVE_PICTURES_URL);
+  }, [session, router]);
 
   if (session) {
     return (
@@ -67,6 +68,7 @@ const Home: NextPage = () => {
     <Background>
       <Head>
         <title>Pictures App</title>
+        <meta />
         <meta
           name="description"
           content="Share pictures with others in the common gallery"
