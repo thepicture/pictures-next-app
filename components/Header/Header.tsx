@@ -1,13 +1,22 @@
 import React from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 
-import { Card, Typography } from "@mui/material";
+import { useSession } from "next-auth/react";
+
+import { Box, Card, Typography } from "@mui/material";
 
 import { StyledLink } from "@pages";
-import { RELATIVE_SIGN_OUT_URL } from "@constants";
+import { IMAGE_PLACEHOLDER, RELATIVE_SIGN_OUT_URL } from "@constants";
 
 export const Header = () => {
+  const { data: session } = useSession();
+
+  if (!session || !session.user) {
+    return null;
+  }
+
   return (
     <Card
       elevation={16}
@@ -21,9 +30,19 @@ export const Header = () => {
       <Typography alignSelf="center" component="h1" variant="h6">
         Pictures
       </Typography>
-      <Link href={RELATIVE_SIGN_OUT_URL}>
-        <StyledLink style={{ width: "auto" }}>Sign out</StyledLink>
-      </Link>
+      <Box display="flex" alignItems="center" gap={1}>
+        <Image
+          src={session.user.image || IMAGE_PLACEHOLDER}
+          alt={`${session.user.name}'s profile image`}
+          width="35"
+          height="35"
+          style={{ borderRadius: "100%" }}
+        />
+        <Typography>{session.user.name}</Typography>
+        <Link href={RELATIVE_SIGN_OUT_URL}>
+          <StyledLink style={{ width: "auto" }}>Signout</StyledLink>
+        </Link>
+      </Box>
     </Card>
   );
 };
