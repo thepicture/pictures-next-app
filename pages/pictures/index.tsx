@@ -53,6 +53,7 @@ import {
   POST_PICTURE,
   RELATIVE_SIGN_IN_URL,
   SHOW_SNACKBAR,
+  UNKNOWN_FILE_SIZE,
   UP,
 } from "@constants";
 import Link from "next/link";
@@ -88,7 +89,7 @@ const ContainerGrid = styled.main`
 const FullScreenPictureGrid = styled.section`
   display: grid;
   height: 100%;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto auto auto 1fr auto;
 
   & img {
     object-fit: contain;
@@ -185,7 +186,7 @@ const PicturesPage: NextPage = () => {
     []
   );
 
-  if (!session) {
+  if (!session || !session.user) {
     return (
       <Background>
         <Card elevation={16} sx={{ p: 4 }}>
@@ -241,13 +242,19 @@ const PicturesPage: NextPage = () => {
         ) {
           setSnackbarMessage(PICTURE_IS_DUPLICATE);
           setIsSnackbarOpen(true);
-          return resolve({ name: "", size: -1, url: "" });
+          return resolve({
+            name: "",
+            size: UNKNOWN_FILE_SIZE,
+            url: "",
+            uploadedBy: "",
+          });
         }
         return resolve({
           name: compressedFile.name,
           size: compressedFile.size,
           url: reader.result as string,
           passwordForDeletion,
+          uploadedBy: session.user?.name || "Anonymous",
         });
       };
     });
@@ -336,6 +343,9 @@ const PicturesPage: NextPage = () => {
             </Typography>
             <Typography textAlign="center">
               {openedPicture && byteSize(openedPicture.size).toString()}
+            </Typography>
+            <Typography textAlign="center">
+              Uploaded by {openedPicture?.uploadedBy}
             </Typography>
             <QuickPinchZoom onUpdate={onUpdate}>
               <ImageContainer ref={imageRef}>

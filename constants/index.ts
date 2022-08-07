@@ -4,3 +4,4 @@ export * from "./placeholders.constants";
 export * from "./snackbar.constants";
 export * from "./fetch.constants";
 export * from "./routes.constants";
+export * from "./files.constants";

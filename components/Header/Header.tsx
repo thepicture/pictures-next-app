@@ -33,7 +33,7 @@ export const Header = () => {
       <Box display="flex" alignItems="center" gap={1}>
         <Image
           src={session.user.image || IMAGE_PLACEHOLDER}
-          alt={`${session.user.name}'s profile image`}
+          alt={`${session.user.name || "Anonymous"}'s profile image`}
           width="35"
           height="35"
           style={{ borderRadius: "100%" }}

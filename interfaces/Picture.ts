@@ -3,4 +3,5 @@ export interface Picture {
   size: number;
   url: string;
   passwordForDeletion?: string;
+  uploadedBy: string;
 }
