@@ -4,9 +4,8 @@ import { Card, Snackbar, TextField, Typography } from "@mui/material";
 
 import { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 import io, { Socket } from "socket.io-client";
 
@@ -31,12 +30,11 @@ import {
   PICTURE_DELETE_WARNING,
   PICTURE_IS_DUPLICATE,
   POST_PICTURE,
-  RELATIVE_SIGN_IN_URL,
   SHOW_SNACKBAR,
   UNKNOWN_FILE_SIZE,
 } from "@constants";
 import { ContainerGrid } from "@layouts";
-import { Background, StyledLink } from "@styles";
+import { Background, StyledButton } from "@styles";
 
 let socket: Socket;
 
@@ -92,9 +90,7 @@ const PicturesPage: NextPage = () => {
       <Background>
         <Card elevation={16} sx={{ p: 4 }}>
           <Typography mb={2}>You must sign in</Typography>
-          <Link href={RELATIVE_SIGN_IN_URL}>
-            <StyledLink>Sign In</StyledLink>
-          </Link>
+          <StyledButton onClick={() => signIn("github")}>Sign In</StyledButton>
         </Card>
       </Background>
     );

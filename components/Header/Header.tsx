@@ -1,18 +1,13 @@
 import React from "react";
 
-import Link from "next/link";
 import Image from "next/image";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 import { Box, Card, Typography } from "@mui/material";
 
-import { StyledLink } from "@styles";
-import {
-  ANONYMOUS,
-  IMAGE_PLACEHOLDER,
-  RELATIVE_SIGN_OUT_URL,
-} from "@constants";
+import { StyledButton } from "@styles";
+import { ANONYMOUS, IMAGE_PLACEHOLDER } from "@constants";
 
 export const Header = () => {
   const { data: session } = useSession();
@@ -38,16 +33,18 @@ export const Header = () => {
             <Image
               src={session.user.image || IMAGE_PLACEHOLDER}
               alt={`${session.user.name || ANONYMOUS}'s profile image`}
-              width="35"
-              height="35"
+              width="70"
+              height="70"
               style={{ borderRadius: "100%" }}
             />
             <Typography>{session.user.name}</Typography>
-            <Link href={RELATIVE_SIGN_OUT_URL}>
-              <StyledLink style={{ width: "auto" }} tabIndex={0}>
-                Signout
-              </StyledLink>
-            </Link>
+            <StyledButton
+              onClick={() => signOut()}
+              title="Sign out from the current account"
+              style={{ paddingLeft: 0, paddingRight: 0 }}
+            >
+              Signout
+            </StyledButton>
           </>
         )}
       </Box>

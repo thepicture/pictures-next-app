@@ -5,12 +5,12 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 
 import { Card, Typography } from "@mui/material";
 
-import { RELATIVE_PICTURES_URL, RELATIVE_SIGN_IN_URL } from "@constants";
-import { Background, StyledLink } from "@styles";
+import { RELATIVE_PICTURES_URL } from "@constants";
+import { Background, StyledButton } from "@styles";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -46,11 +46,12 @@ const Home: NextPage = () => {
       <Card elevation={16} component="main" sx={{ p: 4, m: 4 }}>
         <h1 tabIndex={0}>Pictures App</h1>
         <p tabIndex={0}>Share pictures with others in the common gallery</p>
-        <Link href={RELATIVE_SIGN_IN_URL} title="Navigate to sign in">
-          <StyledLink tabIndex={0} aria-label="Navigate to sign in">
-            Start
-          </StyledLink>
-        </Link>
+        <StyledButton
+          onClick={() => signIn("github")}
+          title="Navigate to sign in"
+        >
+          Start
+        </StyledButton>
       </Card>
     </Background>
   );
