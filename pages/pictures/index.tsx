@@ -1,62 +1,41 @@
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 
-import {
-  Button,
-  Card,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Slide,
-  Snackbar,
-  TextField,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Card, Snackbar, TextField, Typography } from "@mui/material";
 
 import styled from "styled-components";
 
 import { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
+import Link from "next/link";
 
 import { useSession } from "next-auth/react";
-
-import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
-
-import byteSize from "byte-size";
 
 import io, { Socket } from "socket.io-client";
 
 import imageCompression from "browser-image-compression";
 
-import { Background, StyledLink } from "@pages";
-import { Footer, Gallery, Header } from "@components";
+import {
+  Footer,
+  FullScreenPicture,
+  Gallery,
+  Header,
+  PictureDeleteConfirm,
+} from "@components";
 import { Uploader } from "@components";
 import { Picture } from "@interfaces";
 import { useAsk } from "@hooks";
+import { Background, StyledLink } from "@pages";
 
 import {
   API_PICTURES,
   DELETE_PICTURE_BY_NAME_AND_PASSWORD,
-  IMAGE_PLACEHOLDER,
   PICTURES,
   PICTURE_IS_DUPLICATE,
   POST_PICTURE,
   RELATIVE_SIGN_IN_URL,
   SHOW_SNACKBAR,
   UNKNOWN_FILE_SIZE,
-  UP,
 } from "@constants";
-import Link from "next/link";
 
 let socket: Socket;
 
@@ -86,24 +65,6 @@ const ContainerGrid = styled.main`
   }
 `;
 
-const FullScreenPictureGrid = styled.section`
-  display: grid;
-  height: 100%;
-  grid-template-rows: auto auto auto 1fr auto;
-
-  & img {
-    object-fit: contain;
-    width: 100%;
-    height: 100%;
-  }
-`;
-
-const ImageContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  position: relative;
-`;
-
 interface ImageCompressionOptions {
   maxSizeMB: number;
 }
@@ -119,7 +80,7 @@ const PICTURE_DELETE_WARNING = `You haven't installed a password for deletion.
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
   const [pictureName, setPictureName] = useState("");
-  const [openedPicture, setOpenedPicture] = useState<Picture>();
+  const [openedPicture, setOpenedPicture] = useState<Picture | null>();
 
   const [passwordForDeletion, setPasswordForDeletion] = useState("");
   const [
@@ -129,14 +90,9 @@ const PicturesPage: NextPage = () => {
 
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
+  const [isPictureDeleteConfirmOpen, setIsPictureDeleteConfirmOpen] =
+    useState(false);
 
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const imageRef = useRef<any>();
-  const dialogTextFieldRef = useRef<HTMLInputElement>(null);
   const { ask, ConfirmDialogWithProps } = useAsk();
 
   const { data: session } = useSession();
@@ -168,24 +124,6 @@ const PicturesPage: NextPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (isDialogOpen && dialogTextFieldRef.current)
-      dialogTextFieldRef.current.focus();
-  }, [isDialogOpen]);
-
-  const onUpdate = useCallback(
-    ({ x, y, scale }: { x: number; y: number; scale: number }) => {
-      const { current: img } = imageRef;
-
-      if (img) {
-        const value = make3dTransformValue({ x, y, scale });
-
-        img.style.setProperty("transform", value);
-      }
-    },
-    []
-  );
-
   if (session === null) {
     console.log("session");
     return (
@@ -202,15 +140,14 @@ const PicturesPage: NextPage = () => {
 
   const handlePictureOpen = (picture: Picture) => {
     setOpenedPicture(picture);
-    setIsFullScreenOpen(true);
   };
 
   const handlePictureClose = () => {
-    setIsFullScreenOpen(false);
+    setOpenedPicture(null);
   };
 
   const handleOpenDialogForPictureName = (pictureName: string) => {
-    setIsDialogOpen(true);
+    setIsPictureDeleteConfirmOpen(true);
     setPictureName(pictureName);
   };
 
@@ -281,10 +218,6 @@ const PicturesPage: NextPage = () => {
     }
   };
 
-  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPasswordForDeletion(event.target.value);
-  };
-
   return (
     <>
       <Head>
@@ -302,7 +235,7 @@ const PicturesPage: NextPage = () => {
             <Uploader onUpload={handleUpload} />
             <TextField
               value={passwordForDeletion}
-              onChange={handlePasswordChange}
+              onChange={(event) => setPasswordForDeletion(event.target.value)}
               autoComplete="one-time-code"
               type="password"
               title="Password for picture deletion"
@@ -322,111 +255,38 @@ const PicturesPage: NextPage = () => {
               <Typography mb={2}>Loading...</Typography>
             )}
             {session && pictures.length === 0 && (
-              <p>No pictures here yet. Upload yours now!</p>
+              <Typography>No pictures here yet. Upload yours now!</Typography>
             )}
           </Card>
           <Footer />
         </ContainerGrid>
       </Background>
-      {isFullScreenOpen && (
-        <Dialog open={!!openedPicture} fullScreen>
-          <FullScreenPictureGrid>
-            <Typography
-              textAlign="center"
-              component="h2"
-              variant="h6"
-              sx={{
-                whiteSpace: "nowrap",
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-              }}
-            >
-              {openedPicture?.size === -1
-                ? openedPicture?.name
-                : openedPicture?.name.split(".")[0]}
-            </Typography>
-            <Typography textAlign="center">
-              {openedPicture && byteSize(openedPicture.size).toString()}
-            </Typography>
-            <Typography textAlign="center">
-              Uploaded by {openedPicture?.uploadedBy}
-            </Typography>
-            <QuickPinchZoom onUpdate={onUpdate}>
-              <ImageContainer ref={imageRef}>
-                <Image
-                  src={openedPicture?.url || IMAGE_PLACEHOLDER}
-                  alt=""
-                  layout="fill"
-                />
-              </ImageContainer>
-            </QuickPinchZoom>
-            <Button onClick={handlePictureClose}>Close</Button>
-          </FullScreenPictureGrid>
-        </Dialog>
-      )}
+      <FullScreenPicture
+        picture={openedPicture}
+        onPictureClose={handlePictureClose}
+      />
       <Snackbar
         open={isSnackbarOpen}
         onClose={handleSnackbarClose}
         message={snackbarMessage}
       />
-      <Dialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        keepMounted
-        fullScreen={fullScreen}
-        TransitionComponent={Transition}
-      >
-        <DialogTitle>Confirm your identity</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To delete the picture, you need to enter password. If password was
-            empty during picture upload, you cannot delete the picture.
-          </DialogContentText>
-          <TextField
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setPasswordForExistingPictureDeletion(event.target.value)
-            }
-            value={passwordForExistingPictureDeletion}
-            type="password"
-            autoComplete="one-time-code"
-            label="Password for deletion"
-            inputRef={dialogTextFieldRef}
-            margin="dense"
-            fullWidth
-            variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setPasswordForExistingPictureDeletion("");
-              setIsDialogOpen(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              setIsDialogOpen(false);
-              handlePictureDelete();
-            }}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <PictureDeleteConfirm
+        isOpen={isPictureDeleteConfirmOpen}
+        onPasswordChange={(password: string) =>
+          setPasswordForExistingPictureDeletion(password)
+        }
+        onConfirm={() => {
+          setIsPictureDeleteConfirmOpen(false);
+          handlePictureDelete();
+        }}
+        onCancel={() => {
+          setPasswordForExistingPictureDeletion("");
+          setIsPictureDeleteConfirmOpen(false);
+        }}
+      />
       <ConfirmDialogWithProps />
     </>
   );
 };
-
-const Transition = React.forwardRef(function Transition(
-  props: {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction={UP} ref={ref} {...props} />;
-});
 
 export default PicturesPage;
