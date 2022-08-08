@@ -44,7 +44,9 @@ export const Header = () => {
             />
             <Typography>{session.user.name}</Typography>
             <Link href={RELATIVE_SIGN_OUT_URL}>
-              <StyledLink style={{ width: "auto" }}>Signout</StyledLink>
+              <StyledLink style={{ width: "auto" }} tabIndex={0}>
+                Signout
+              </StyledLink>
             </Link>
           </>
         )}

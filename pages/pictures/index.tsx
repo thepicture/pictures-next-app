@@ -88,7 +88,6 @@ const PicturesPage: NextPage = () => {
   }, []);
 
   if (session === null) {
-    console.log("session");
     return (
       <Background>
         <Card elevation={16} sx={{ p: 4 }}>
