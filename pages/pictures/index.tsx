@@ -186,7 +186,8 @@ const PicturesPage: NextPage = () => {
     []
   );
 
-  if (!session || !session.user) {
+  if (session === null) {
+    console.log("session");
     return (
       <Background>
         <Card elevation={16} sx={{ p: 4 }}>
@@ -317,7 +318,10 @@ const PicturesPage: NextPage = () => {
               onPictureOpen={handlePictureOpen}
               onPictureDelete={handleOpenDialogForPictureName}
             />
-            {pictures.length === 0 && (
+            {typeof session === "undefined" && (
+              <Typography mb={2}>Loading...</Typography>
+            )}
+            {session && pictures.length === 0 && (
               <p>No pictures here yet. Upload yours now!</p>
             )}
           </Card>

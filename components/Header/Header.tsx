@@ -13,10 +13,6 @@ import { IMAGE_PLACEHOLDER, RELATIVE_SIGN_OUT_URL } from "@constants";
 export const Header = () => {
   const { data: session } = useSession();
 
-  if (!session || !session.user) {
-    return null;
-  }
-
   return (
     <Card
       elevation={16}
@@ -31,17 +27,23 @@ export const Header = () => {
         Pictures
       </Typography>
       <Box display="flex" alignItems="center" gap={1}>
-        <Image
-          src={session.user.image || IMAGE_PLACEHOLDER}
-          alt={`${session.user.name || "Anonymous"}'s profile image`}
-          width="35"
-          height="35"
-          style={{ borderRadius: "100%" }}
-        />
-        <Typography>{session.user.name}</Typography>
-        <Link href={RELATIVE_SIGN_OUT_URL}>
-          <StyledLink style={{ width: "auto" }}>Signout</StyledLink>
-        </Link>
+        {!session || !session.user ? (
+          <Typography>Loading...</Typography>
+        ) : (
+          <>
+            <Image
+              src={session.user.image || IMAGE_PLACEHOLDER}
+              alt={`${session.user.name || "Anonymous"}'s profile image`}
+              width="35"
+              height="35"
+              style={{ borderRadius: "100%" }}
+            />
+            <Typography>{session.user.name}</Typography>
+            <Link href={RELATIVE_SIGN_OUT_URL}>
+              <StyledLink style={{ width: "auto" }}>Signout</StyledLink>
+            </Link>
+          </>
+        )}
       </Box>
     </Card>
   );
