@@ -7,8 +7,12 @@ import { useSession } from "next-auth/react";
 
 import { Box, Card, Typography } from "@mui/material";
 
-import { StyledLink } from "@pages";
-import { IMAGE_PLACEHOLDER, RELATIVE_SIGN_OUT_URL } from "@constants";
+import { StyledLink } from "@styles";
+import {
+  ANONYMOUS,
+  IMAGE_PLACEHOLDER,
+  RELATIVE_SIGN_OUT_URL,
+} from "@constants";
 
 export const Header = () => {
   const { data: session } = useSession();
@@ -33,7 +37,7 @@ export const Header = () => {
           <>
             <Image
               src={session.user.image || IMAGE_PLACEHOLDER}
-              alt={`${session.user.name || "Anonymous"}'s profile image`}
+              alt={`${session.user.name || ANONYMOUS}'s profile image`}
               width="35"
               height="35"
               style={{ borderRadius: "100%" }}

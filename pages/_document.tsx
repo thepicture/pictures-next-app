@@ -1,4 +1,3 @@
-import { GLOBAL_STYLES } from "@constants";
 import Document, {
   Html,
   Head,
@@ -9,6 +8,8 @@ import Document, {
 } from "next/document";
 
 import { ServerStyleSheet } from "styled-components";
+
+import { globalStyles } from "@styles";
 
 export default class PrestyledDocument extends Document {
   static async getInitialProps(
@@ -42,7 +43,7 @@ export default class PrestyledDocument extends Document {
     return (
       <Html lang="en">
         <Head>
-          <style>{GLOBAL_STYLES}</style>
+          <style>{globalStyles}</style>
         </Head>
         <body>
           <Main />

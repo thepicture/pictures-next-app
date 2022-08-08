@@ -1,6 +1,6 @@
 import React, { createRef, useEffect } from "react";
 
-import { StyledButton } from "@pages";
+import { StyledButton } from "@styles";
 
 export interface UploaderProps {
   onUpload: (files: File[]) => void;

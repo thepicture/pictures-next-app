@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 
 import { Card, Snackbar, TextField, Typography } from "@mui/material";
 
-import styled from "styled-components";
-
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -24,58 +22,23 @@ import {
 import { Uploader } from "@components";
 import { Picture } from "@interfaces";
 import { useAsk } from "@hooks";
-import { Background, StyledLink } from "@pages";
-
 import {
+  ANONYMOUS,
   API_PICTURES,
   DELETE_PICTURE_BY_NAME_AND_PASSWORD,
+  IMAGE_COMPRESSION_OPTIONS,
   PICTURES,
+  PICTURE_DELETE_WARNING,
   PICTURE_IS_DUPLICATE,
   POST_PICTURE,
   RELATIVE_SIGN_IN_URL,
   SHOW_SNACKBAR,
   UNKNOWN_FILE_SIZE,
 } from "@constants";
+import { ContainerGrid } from "@layouts";
+import { Background, StyledLink } from "@styles";
 
 let socket: Socket;
-
-const ContainerGrid = styled.main`
-  display: grid;
-  width: 100%;
-  margin: 1em;
-  padding-top: 1em;
-  padding-bottom: 1em;
-  height: 100%;
-  grid-template-areas:
-    "h"
-    "u"
-    "p"
-    "f";
-  grid-template-rows: auto auto 1fr auto;
-  grid-template-columns: 1fr;
-  gap: 1em;
-
-  @media print, screen and (min-width: 640px) {
-    grid-template-areas:
-      "h h"
-      "u p"
-      "f f";
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: auto 1fr;
-  }
-`;
-
-interface ImageCompressionOptions {
-  maxSizeMB: number;
-}
-
-const IMAGE_COMPRESSION_OPTIONS: ImageCompressionOptions = {
-  maxSizeMB: 0.5,
-};
-
-const PICTURE_DELETE_WARNING = `You haven't installed a password for deletion.
- Deletion will be impossible.
- Continue uploading without a password for deletion?`;
 
 const PicturesPage: NextPage = () => {
   const [pictures, setPictures] = useState<Picture[]>([]);
@@ -192,7 +155,7 @@ const PicturesPage: NextPage = () => {
           size: compressedFile.size,
           url: reader.result as string,
           passwordForDeletion,
-          uploadedBy: session.user?.name || "Anonymous",
+          uploadedBy: session.user?.name || ANONYMOUS,
         });
       };
     });

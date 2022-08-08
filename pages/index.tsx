@@ -9,40 +9,8 @@ import { useSession } from "next-auth/react";
 
 import { Card, Typography } from "@mui/material";
 
-import styled, { css } from "styled-components";
-
 import { RELATIVE_PICTURES_URL, RELATIVE_SIGN_IN_URL } from "@constants";
-
-export const Background = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(to right, red, blue);
-  text-align: center;
-`;
-
-const sharedClickableStyle = css`
-  color: white;
-  background: #00d;
-  border-radius: 0.5em;
-  padding: 0.5em 1em;
-  width: 100%;
-  display: block;
-  cursor: pointer;
-
-  &:hover {
-    background: blue;
-  }
-`;
-
-export const StyledLink = styled.a`
-  ${sharedClickableStyle}
-`;
-export const StyledButton = styled.button`
-  ${sharedClickableStyle}
-  border: none;
-`;
+import { Background, StyledLink } from "@styles";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -68,7 +36,6 @@ const Home: NextPage = () => {
     <Background>
       <Head>
         <title>Pictures App</title>
-        <meta />
         <meta
           name="description"
           content="Share pictures with others in the common gallery"

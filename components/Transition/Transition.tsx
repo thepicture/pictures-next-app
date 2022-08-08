@@ -1,6 +1,8 @@
-import { UP } from "@constants";
-import { Slide } from "@mui/material";
 import React from "react";
+
+import { Slide } from "@mui/material";
+
+import { UP } from "@constants";
 
 export const Transition = React.forwardRef(function Transition(
   props: {

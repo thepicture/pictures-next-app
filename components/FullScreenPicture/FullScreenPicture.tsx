@@ -1,10 +1,8 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef } from "react";
 
 import Image from "next/image";
 
-import { Button, Dialog, Typography } from "@mui/material";
-
-import styled from "styled-components";
+import { Box, Button, Dialog, Typography } from "@mui/material";
 
 import byteSize from "byte-size";
 
@@ -12,24 +10,7 @@ import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 
 import { Picture } from "@interfaces";
 import { IMAGE_PLACEHOLDER } from "@constants";
-
-const FullScreenPictureGrid = styled.section`
-  display: grid;
-  height: 100%;
-  grid-template-rows: auto auto auto 1fr auto;
-
-  & img {
-    object-fit: contain;
-    width: 100%;
-    height: 100%;
-  }
-`;
-
-const ImageContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  position: relative;
-`;
+import { FullScreenPictureGrid } from "@layouts";
 
 interface FullScreenPictureProps {
   picture: Picture | null | undefined;
@@ -76,13 +57,13 @@ export const FullScreenPicture: React.FC<FullScreenPictureProps> = ({
           Uploaded by {picture?.uploadedBy}
         </Typography>
         <QuickPinchZoom onUpdate={onUpdate}>
-          <ImageContainer ref={imageRef}>
+          <Box width="100%" height="100%" position="relative" ref={imageRef}>
             <Image
               src={picture?.url || IMAGE_PLACEHOLDER}
               alt=""
               layout="fill"
             />
-          </ImageContainer>
+          </Box>
         </QuickPinchZoom>
         <Button onClick={onPictureClose}>Close</Button>
       </FullScreenPictureGrid>

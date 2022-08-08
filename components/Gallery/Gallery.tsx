@@ -1,8 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Picture } from "@interfaces";
-import { GalleryPicture } from "./GalleryPicture";
+import { GalleryPicture } from "@components";
+import { Box } from "@mui/material";
 
 export interface GalleryProps {
   id: string;
@@ -11,11 +11,6 @@ export interface GalleryProps {
   onPictureDelete: (pictureName: string) => void;
 }
 
-const FlexContainer = styled.section`
-  display: flex;
-  flex-wrap: wrap;
-`;
-
 export const Gallery: React.FC<GalleryProps> = ({
   id,
   pictures,
@@ -23,7 +18,7 @@ export const Gallery: React.FC<GalleryProps> = ({
   onPictureDelete,
 }) => {
   return (
-    <FlexContainer id={id}>
+    <Box id={id} component="section" display="flex" flexWrap="wrap">
       {pictures.map((picture) => (
         <GalleryPicture
           key={picture.name}
@@ -32,6 +27,6 @@ export const Gallery: React.FC<GalleryProps> = ({
           onPictureDelete={onPictureDelete}
         />
       ))}
-    </FlexContainer>
+    </Box>
   );
 };

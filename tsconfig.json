@@ -23,7 +23,8 @@
       "@persistency": ["persistency"],
       "@hooks": ["hooks"],
       "@specific": ["specific"],
-      "@constants": ["constants"]
+      "@constants": ["constants"],
+      "@layouts": ["layouts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
