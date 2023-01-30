@@ -17,5 +17,5 @@ Provides the ability to share pictures with other people
 - Material UI
 - Styled components
 
-# Running without install
-Site is being hosted at [heroku app](https://pictures-next-app.herokuapp.com/).
+# Demo
+[replit](https://pictures-next-app.thepicture.repl.co/)
